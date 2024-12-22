@@ -18,6 +18,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+#include <float.h>
 
 const float LOAD_FACTOR_THRESHOLD = 0.7;
 static const size_t XSEC_THRESHOLD = 1 * 1024 * 1024;  // 1 MB
@@ -75,7 +76,7 @@ bool push_xsec(xsec_t* cross_section, float xsec, float energy) {
 
     // Check if reallocation is needed
     if (cross_section->alloc <= cross_section->len) {
-        size_t new_alloc = cross_section->alloc > 0 ? cross_section->alloc : 16;  // Start with a reasonable size
+        size_t new_alloc = cross_section->alloc == 0 ? 1 : cross_section->alloc;
         if (new_alloc < XSEC_THRESHOLD) {
             new_alloc *= 2;  // Exponential growth for smaller allocations
         } else {
@@ -397,6 +398,146 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
         }
     }
     return str_struct_one->len - string_len;
+}
+// ================================================================================
+// ================================================================================
+
+struct vector_t {
+    float* data;
+    size_t len;
+    size_t alloc;
+};
+// --------------------------------------------------------------------------------
+
+vector_t* init_vector(size_t len) {
+    vector_t* ptr = malloc(sizeof(vector_t));
+    if (!ptr) {
+        errno = ENOMEM;
+        fprintf(stderr, "Vector allocation failure with error: %s\n", strerror(errno));
+        return NULL;
+    }
+    float* ptr2 = malloc(len * sizeof(float));
+    if (!ptr2) {
+        errno = ENOMEM;
+        fprintf(stderr, "Float vector allocation failure with error: %s\n", strerror(errno));
+        free(ptr);
+        return NULL;
+    }
+    ptr->data = ptr2;
+    ptr->len = 0;
+    ptr->alloc = len;
+    return ptr;
+}
+// --------------------------------------------------------------------------------
+
+bool push_vector(vector_t* vec, float dat) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+    // Check if reallocation is needed
+    if (vec->alloc <= vec->len) {
+        size_t new_alloc = vec->alloc == 0 ? 1 : vec->alloc;
+        if (new_alloc < XSEC_THRESHOLD) {
+            new_alloc *= 2;  // Exponential growth for smaller allocations
+        } else {
+            new_alloc += XSEC_FIXED_AMOUNT;  // Fixed growth beyond threshold
+        }
+
+        // Attempt to reallocate the cross-section array
+        float* ptr = realloc(vec->data, new_alloc * sizeof(float));
+        if (!ptr) {
+            errno = ENOMEM;
+            fprintf(stderr, "Failed to reallocate for push_xsec\n");
+            return false;
+        }
+
+        // Update structure only after successful reallocation
+        vec->data = ptr;
+        vec->alloc = new_alloc;
+    } 
+    vec->data[vec->len] = dat;
+    vec->len++;
+    return true;
+}
+// --------------------------------------------------------------------------------
+
+float pop_vector(vector_t* vec) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+    if (vec->len == 0) {
+        errno = EINVAL;
+        fprintf(stderr, "Vector is not populated\n");
+        return FLT_MIN;
+    }
+    float dat = vec->data[vec->len-1];
+    vec->len--;
+    return dat;
+}
+// --------------------------------------------------------------------------------
+
+float get_vector(vector_t* vec, size_t index) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+    if (index >= vec->len) {
+        errno = EINVAL;
+        fprintf(stderr, "Index %zu out of bounds (len: %zu)\n", index, vec->len);
+        return false;
+    }
+    return vec->data[vec->len]; 
+}
+// --------------------------------------------------------------------------------
+
+size_t vector_size(vector_t* vec) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+    return vec->len;
+}
+// --------------------------------------------------------------------------------
+
+size_t vector_alloc(vector_t* vec) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+    return vec->alloc;
+}
+// --------------------------------------------------------------------------------
+
+void free_vector(vector_t* vec) {
+    if (!vec) {
+        errno = EINVAL;
+        fprintf(stderr, "Vector NULL, possible double free\n");
+        return;
+    }
+    if (vec->data) {
+        free(vec->data);
+        vec->data = NULL;
+    }
+    vec->len = 0;
+    vec->alloc = 0;
+    if (vec) {
+        free(vec);
+        vec = NULL;
+    }
+}
+// --------------------------------------------------------------------------------
+
+void _free_vector(vector_t** vec) {
+    if (vec && *vec) {
+        free_vector(*vec);
+    }
 }
 // ================================================================================
 // ================================================================================

@@ -30,7 +30,7 @@ extern "C" {
  *
  * This structure manages two parallel arrays (`xs` for cross-sections and `energy` for energy values),
  * along with metadata for the current length and allocated capacity.  The data in this 
- * struct will be encapsulated, preventing a user from dirrectly accessing it.
+ * struct will be encapsulated, preventing a user from directly accessing it.
  *
  * Fields:
  *  - float* xs: Pointer to an array of cross-section values.
@@ -161,11 +161,11 @@ void _free_xsec(xsec_t** cross_section);
 
 /**
  * @struct xsec
- * @brief Forward declaration for a dynamic data structure for storing cross-sections and their corresponding energies.
+ * @brief Forward declaration for a dynamic data structure for storing strings.
  *
- * This structure manages two parallel arrays (`xs` for cross-sections and `energy` for energy values),
- * along with metadata for the current length and allocated capacity.  The data in this 
- * struct will be encapsulated, preventing a user from dirrectly accessing it.
+ * This structre manages an array for float variables along with metadata for 
+ * the current length and allocated capacity.  The data in this struct will be
+ * encapsulated, preventing a user from directly accessing it.
  *
  * Fields:
  *  - chart* str: Pointer to a string literal
@@ -218,6 +218,73 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
 #define compare_strings(str_one, str_two) _Generic((str_two), \
     char*: compare_strings_lit, \
     default: compare_strings_string) (str_one, str_two)
+// ================================================================================ 
+// ================================================================================
+// VECTOR IMPLEMENTATION
+
+/**
+ * @struct xsec
+ * @brief Forward declaration for a dynamic data structure to contain a float vector.
+ *
+ * This structure manages two parallel arrays (`xs` for cross-sections and `energy` for energy values),
+ * along with metadata for the current length and allocated capacity.  The data in this 
+ * struct will be encapsulated, preventing a user from dirrectly accessing it.
+ *
+ * Fields:
+ *  - float* str: A float pointer
+ *  - size_t len: The current number of elements in the arrays.
+ *  - size_t alloc: The total allocated capacity of the arrays.
+ */
+typedef struct vector_t vector_t;
+// --------------------------------------------------------------------------------
+
+vector_t* init_vector(size_t len);
+// --------------------------------------------------------------------------------
+
+bool push_vector(vector_t* vec, float dat);
+// --------------------------------------------------------------------------------
+
+float pop_vector(vector_t* vec);
+// --------------------------------------------------------------------------------
+
+float get_vector(vector_t* vec, size_t index);
+// --------------------------------------------------------------------------------
+
+size_t vector_size(vector_t* vec);
+// --------------------------------------------------------------------------------
+
+size_t vector_alloc(vector_t* vec);
+// --------------------------------------------------------------------------------
+
+void free_vector(vector_t* vec);
+// --------------------------------------------------------------------------------
+
+void _free_vector(vector_t** vec);
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined (__clang__)
+    #define VECTOR_GBC __attribute__((cleanup(_free_vector)))
+#endif
+// ================================================================================
+// ================================================================================
+
+#define size(d_struct) _Generic((d_struct), \
+    xsec_t*: xsec_size, \
+    string_t*: string_size, \
+    vector_t*: vector_size) (d_struct)
+// --------------------------------------------------------------------------------
+
+#define alloc(d_struct) _Generic((d_struct), \
+    xsec_t*: xsec_alloc, \
+    string_t*: string_alloc, \
+    vector_t*: vector_alloc) (d_struct)
+// --------------------------------------------------------------------------------
+
+#define free_data(d_struct) _Generic((d_struct), \
+    xsec_t*: free_xsec, \
+    string_t*: free_string, \
+    vector_t*: free_vector, \
+    default: free) (d_struct)
 // ================================================================================
 // ================================================================================ 
 #ifdef __cplusplus

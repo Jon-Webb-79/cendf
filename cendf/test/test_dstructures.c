@@ -112,6 +112,46 @@ void test_null_xsec_pointer(void **state) {
 
     assert_false(test);
 }
+// --------------------------------------------------------------------------------
+
+void test_xsec_size_alloc(void **state) {
+    (void) state;
+    xsec_t* cross_sec = init_xsec(4);
+    push_xsec(cross_sec, 1.f, 1.f);
+    push_xsec(cross_sec, 2.f, 2.f);
+    push_xsec(cross_sec, 3.f, 3.f);
+    push_xsec(cross_sec, 4.f, 4.f);
+    float data[4] = {1.0f, 2.0f, 3.0f, 4.0f};
+    xsecData dat;
+    for (size_t i = 0; i < 4; i++) {
+        dat = get_xsec_data(cross_sec, i);
+        assert_float_equal(data[i], dat.xs, 1.0e-3); 
+        assert_float_equal(data[i], dat.energy, 1.0e-3);
+    }
+    assert_int_equal(size(cross_sec), 4);
+    assert_int_equal(alloc(cross_sec), 4);
+    free_xsec(cross_sec);
+}
+// --------------------------------------------------------------------------------
+
+void test_xsec_free_data(void **state) {
+    (void) state;
+    xsec_t* cross_sec = init_xsec(4);
+    push_xsec(cross_sec, 1.f, 1.f);
+    push_xsec(cross_sec, 2.f, 2.f);
+    push_xsec(cross_sec, 3.f, 3.f);
+    push_xsec(cross_sec, 4.f, 4.f);
+    float data[4] = {1.0f, 2.0f, 3.0f, 4.0f};
+    xsecData dat;
+    for (size_t i = 0; i < 4; i++) {
+        dat = get_xsec_data(cross_sec, i);
+        assert_float_equal(data[i], dat.xs, 1.0e-3); 
+        assert_float_equal(data[i], dat.energy, 1.0e-3);
+    }
+    assert_int_equal(size(cross_sec), 4);
+    assert_int_equal(alloc(cross_sec), 4);
+    free_data(cross_sec);
+}
 // ================================================================================
 // ================================================================================ 
 
@@ -190,6 +230,32 @@ void test_concat_string_string(void **state) {
     assert_int_equal(13, string_alloc(str1));
     free_string(str1);
     free_string(str2);
+}
+// --------------------------------------------------------------------------------
+
+void test_string_size_alloc(void **state) {
+    (void) state;
+
+    string_t* str = init_string("Hello");
+    const char* new_str = get_string(str);
+    int cmp = compare_strings(str, (char*)new_str);
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, size(str));
+    assert_int_equal(6, alloc(str));
+    free_string(str);
+}
+// --------------------------------------------------------------------------------
+
+void test_string_free_data(void **state) {
+    (void) state;
+
+    string_t* str = init_string("Hello");
+    const char* new_str = get_string(str);
+    int cmp = compare_strings(str, (char*)new_str);
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, size(str));
+    assert_int_equal(6, alloc(str));
+    free_data(str);
 }
 // ================================================================================
 // ================================================================================ 

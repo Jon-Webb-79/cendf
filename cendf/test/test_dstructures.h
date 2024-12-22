@@ -62,6 +62,18 @@ void test_xsec_resize(void **state);
  * Test to ensure proper safe failure if a null pointer is sent in place of xsec 
  */
 void test_null_xsec_pointer(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the size and alloc macro for the xsec_t data type
+ */
+void test_xsec_size_alloc(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test free_data macro for xsec_t data type
+ */
+void test_xsec_free_data(void **state);
 // ================================================================================ 
 // ================================================================================
 // TEST STRING 
@@ -101,6 +113,18 @@ void test_concat_string_literal(void **state);
  * Test the ability to concatenate a string_t data type with another string_t data type
  */
 void test_concat_string_string(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the size and alloc macros with the string_t data type
+ */
+void test_string_size_alloc(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the free_data macro for the string_t data type
+ */
+void test_string_free_data(void **date);
 // ================================================================================
 // ================================================================================
 #endif /* test_dstructures_H */
