@@ -17,11 +17,14 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 
+const float LOAD_FACTOR_THRESHOLD = 0.7;
 static const size_t XSEC_THRESHOLD = 1 * 1024 * 1024;  // 1 MB
 static const size_t XSEC_FIXED_AMOUNT = 1 * 1024 * 1024;  // 1 MB
 // ================================================================================
 // ================================================================================
+// XSEC_T DATA TYPE 
 
 // define xsec_t
 struct xsec_t {
@@ -196,6 +199,204 @@ void _free_xsec(xsec_t** cross_section) {
     if (cross_section && *cross_section) {
         free_xsec(*cross_section);
     }
+}
+// ================================================================================
+// ================================================================================ 
+// STRING_T DATA TYPE 
+
+struct string_t {
+    char* str;
+    size_t len;
+    size_t alloc;
+};
+// --------------------------------------------------------------------------------
+
+string_t* init_string(const char* str) {
+    if (str == NULL) {
+        errno = EINVAL;
+        fprintf(stderr, "Null value passed to init_string with error: %s\n", strerror(errno));
+        return NULL;
+    }
+    string_t* ptr = malloc(sizeof(string_t));
+    if (ptr == NULL) {
+        errno = ENOMEM;
+        fprintf(stderr, "Failed string_t allocation with error: %s\n", strerror(errno));
+        return NULL;
+    }
+    size_t len = strlen(str);
+    char* ptr2 = malloc(len + 1);
+    if (ptr2 == NULL) {
+        errno = ENOMEM;
+        fprintf(stderr, "Failed string allocation with error: %s\n", strerror(errno));
+        free(ptr);
+        return NULL;
+    }
+    strcpy(ptr2, str);
+    ptr->str = ptr2;
+    ptr->len = len;
+    ptr->alloc = len + 1;
+    return ptr;
+}
+// --------------------------------------------------------------------------------
+
+void free_string(string_t* str) {
+    if (!str) {
+        errno = EINVAL;
+        fprintf(stderr, "String NULL, possible double free\n");
+        return;
+    }
+    if (str->str) {
+        free(str->str);
+        str->str = NULL;
+    }
+    str->len = 0;
+    str->alloc = 0;
+    if (str) {
+        free(str);
+        str = NULL;
+    }
+}
+// --------------------------------------------------------------------------------
+
+void _free_string(string_t** str) {
+    if (str && *str) {
+        free_string(*str);
+        *str = NULL;
+    }
+}
+// --------------------------------------------------------------------------------
+
+const char* get_string(const string_t* str) {
+    if (!str || !str->str) {
+        errno = EINVAL;
+        fprintf(stderr, "string_t struct or literal is NULL with error: %s\n", strerror(errno));
+        return NULL;
+    }
+    return str->str;
+}
+// --------------------------------------------------------------------------------
+
+size_t string_size(const string_t* str) {
+    if (!str || !str->str) {
+        errno = EINVAL;
+        fprintf(stderr, "string_t struct or literal is NULL with error: %s\n", strerror(errno));
+        return -1;
+    }
+    return str->len;
+}
+// --------------------------------------------------------------------------------
+
+size_t string_alloc(const string_t* str) {
+    if (!str || !str->str) {
+        errno = EINVAL;
+        fprintf(stderr, "string_t struct or literal is NULL with error: %s\n", strerror(errno));
+        return -1;
+    }
+    return str->alloc;
+}
+// --------------------------------------------------------------------------------
+
+bool string_string_concat(string_t* str1, const string_t* str2) {
+    if (!str1 || !str2 || !str1->str || !str2->str) {
+        errno = EINVAL;
+        fprintf(stderr, "Invalid input: one or both strings are NULL with error: %s\n", strerror(errno));
+        return false;
+    }
+
+    // Calculate the new required length
+    size_t new_len = str1->len + str2->len;
+
+    // Check if the current buffer can hold the concatenated string
+    if (new_len + 1 > str1->alloc) { // +1 for the null terminator
+        // Reallocate the buffer to accommodate the new string
+        char* new_buffer = realloc(str1->str, new_len + 1); // +1 for the null terminator
+        if (!new_buffer) {
+            errno = ENOMEM;
+            fprintf(stderr, "Failed to reallocate memory for concatenated string with error: %s\n", strerror(errno));
+            return false;
+        }
+        str1->str = new_buffer;
+        str1->alloc = new_len + 1;
+    }
+
+    // Append the second string to the first
+    strcat(str1->str, str2->str);
+
+    // Update the length of the first string
+    str1->len = new_len;
+    return true;
+}
+// --------------------------------------------------------------------------------
+
+bool string_lit_concat(string_t* str1, const char* literal) {
+    if (!str1 || !str1->str || !literal) {
+        errno = EINVAL;
+        fprintf(stderr, "Invalid input: string_t or literal is NULL with error: %s\n", strerror(errno));
+        return false;
+    }
+
+    // Calculate the new required length
+    size_t literal_len = strlen(literal);
+    size_t new_len = str1->len + literal_len;
+
+    // Check if the current buffer can hold the concatenated string
+    if (new_len + 1 > str1->alloc) { // +1 for the null terminator
+        // Reallocate the buffer to accommodate the new string
+        char* new_buffer = realloc(str1->str, new_len + 1); // +1 for the null terminator
+        if (!new_buffer) {
+            errno = ENOMEM;
+            fprintf(stderr, "Failed to reallocate memory for concatenated string with error: %s\n", strerror(errno));
+            return false;
+        }
+        str1->str = new_buffer;
+        str1->alloc = new_len + 1;
+    }
+
+    // Append the string literal to the first string
+    strcat(str1->str, literal);
+
+    // Update the length of the first string
+    str1->len = new_len;
+
+    return true; // Indicate success
+}
+// --------------------------------------------------------------------------------
+
+int compare_strings_lit(const string_t* str_struct, const char* string) {
+    if (!str_struct || !string || !str_struct->str) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer provided to compare_strings_lit.\n");
+        return INT_MIN; // Or another designated error value
+    }
+
+    size_t string_len = strlen(string);
+    size_t min_len = (str_struct->len < string_len) ? str_struct->len : string_len;
+
+    for (size_t i = 0; i < min_len; i++) {
+        if (str_struct->str[i] != string[i]) {
+            return (unsigned char)str_struct->str[i] - (unsigned char)string[i];
+        }
+    }
+    return str_struct->len - string_len;
+}
+// --------------------------------------------------------------------------------
+
+int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_two) {
+    if (!str_struct_one || !str_struct_two || !str_struct_one->str || !str_struct_two->str) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer provided to compare_strings_str.\n");
+        return INT_MIN; // Or another designated error value
+    } 
+
+    size_t string_len = str_struct_two->len;
+    size_t min_len = (str_struct_one->len < string_len) ? str_struct_one->len : string_len;
+
+    for (size_t i = 0; i < min_len; i++) {
+        if (str_struct_one->str[i] != str_struct_two->str[i]) {
+            return (unsigned char)str_struct_one->str[i] - (unsigned char)str_struct_two->str[i];
+        }
+    }
+    return str_struct_one->len - string_len;
 }
 // ================================================================================
 // ================================================================================

@@ -114,6 +114,85 @@ void test_null_xsec_pointer(void **state) {
 }
 // ================================================================================
 // ================================================================================ 
+
+void test_init_string(void **state) {
+    (void) state;
+
+    string_t* str = init_string("Hello");
+    int cmp = compare_strings(str, "Hello");
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, string_size(str));
+    assert_int_equal(6, string_alloc(str));
+    free_string(str);
+}
+// --------------------------------------------------------------------------------
+
+void test_init_string_strcmp(void **state) {
+    (void) state;
+
+    string_t* str1 = init_string("Hello");
+    string_t* str2 = init_string("Hello");
+    int cmp = compare_strings(str1, str2);
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, string_size(str1));
+    assert_int_equal(6, string_alloc(str1));
+    free_string(str1);
+    free_string(str2);
+}
+// --------------------------------------------------------------------------------
+
+#if defined (__GNUC__) || defined(__clang__)
+    void test_init_string_gbc(void **state) {
+        (void) state;
+
+        string_t* str STRING_GBC = init_string("Hello");
+        int cmp = compare_strings(str, "Hello");
+        assert_int_equal(cmp, 0);
+        assert_int_equal(5, string_size(str));
+        assert_int_equal(6, string_alloc(str));
+    }
+#endif
+// --------------------------------------------------------------------------------
+
+void test_get_string(void **state) {
+    (void) state;
+
+    string_t* str = init_string("Hello");
+    const char* new_str = get_string(str);
+    int cmp = compare_strings(str, (char*)new_str);
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, string_size(str));
+    assert_int_equal(6, string_alloc(str));
+    free_string(str);
+}
+// --------------------------------------------------------------------------------
+
+void test_concat_string_literal(void **state) {
+    string_t* str = init_string("Hello");
+    bool test = string_concat(str, " World!");
+    assert_true(test);
+    int cmp = compare_strings(str,"Hello World!");
+    assert_int_equal(0, cmp);
+    assert_int_equal(12, string_size(str));
+    assert_int_equal(13, string_alloc(str));
+    free_string(str);
+}
+// --------------------------------------------------------------------------------
+
+void test_concat_string_string(void **state) {
+    string_t* str1 = init_string("Hello");
+    string_t* str2 = init_string(" World!");
+    bool test = string_concat(str1, str2);
+    assert_true(test);
+    int cmp = compare_strings(str1,"Hello World!");
+    assert_int_equal(0, cmp);
+    assert_int_equal(12, string_size(str1));
+    assert_int_equal(13, string_alloc(str1));
+    free_string(str1);
+    free_string(str2);
+}
+// ================================================================================
+// ================================================================================ 
 #endif
 // ================================================================================
 // ================================================================================

@@ -62,6 +62,45 @@ void test_xsec_resize(void **state);
  * Test to ensure proper safe failure if a null pointer is sent in place of xsec 
  */
 void test_null_xsec_pointer(void **state);
+// ================================================================================ 
+// ================================================================================
+// TEST STRING 
+
+/*
+ * Test the init_string function with string to literal comparison
+ */
+void test_init_string(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the init_string function with string to string comparison
+ */
+void test_init_string_strcmp(void **state);
+// -------------------------------------------------------------------------------- 
+/*
+ * Test garbage collection for string_t data types
+ */
+#if defined (__GNUC__) || defined(__clang__)
+    void test_init_string_gbc(void **state);
+#endif
+// --------------------------------------------------------------------------------
+
+/*
+ * Test to ensure get_string works properly
+ */
+void test_get_string(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the ability to concatenate a string_t data type with a string literal
+ */
+void test_concat_string_literal(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the ability to concatenate a string_t data type with another string_t data type
+ */
+void test_concat_string_string(void **state);
 // ================================================================================
 // ================================================================================
 #endif /* test_dstructures_H */

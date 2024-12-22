@@ -157,6 +157,68 @@ void _free_xsec(xsec_t** cross_section);
     #define XSEC_GBC __attribute__((cleanup(_free_xsec)))
 #endif
 // ================================================================================
+// ================================================================================
+
+/**
+ * @struct xsec
+ * @brief Forward declaration for a dynamic data structure for storing cross-sections and their corresponding energies.
+ *
+ * This structure manages two parallel arrays (`xs` for cross-sections and `energy` for energy values),
+ * along with metadata for the current length and allocated capacity.  The data in this 
+ * struct will be encapsulated, preventing a user from dirrectly accessing it.
+ *
+ * Fields:
+ *  - chart* str: Pointer to a string literal
+ *  - size_t len: The current number of elements in the arrays.
+ *  - size_t alloc: The total allocated capacity of the arrays.
+ */
+typedef struct string_t string_t;
+// --------------------------------------------------------------------------------
+
+string_t* init_string(const char* str);
+// --------------------------------------------------------------------------------
+
+void free_string(string_t* str);
+// -------------------------------------------------------------------------------- 
+
+void _free_string(string_t** str);
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined (__clang__)
+    #define STRING_GBC __attribute__((cleanup(_free_string)))
+#endif
+// --------------------------------------------------------------------------------
+
+const char* get_string(const string_t* str);
+// --------------------------------------------------------------------------------
+
+size_t string_size(const string_t* str);
+// --------------------------------------------------------------------------------
+
+size_t string_alloc(const string_t* str);
+// --------------------------------------------------------------------------------
+
+bool string_string_concat(string_t* str, const string_t* string);
+// -------------------------------------------------------------------------------- 
+
+bool string_lit_concat(string_t* str, const char* string);
+// --------------------------------------------------------------------------------
+
+#define string_concat(str_one, str_two) _Generic((str_two), \
+    char*: string_lit_concat, \
+    default: string_string_concat) (str_one, str_two)
+// --------------------------------------------------------------------------------
+
+int compare_strings_lit(const string_t* str_struct, const char* string);
+// --------------------------------------------------------------------------------
+
+int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_two);
+// --------------------------------------------------------------------------------
+
+#define compare_strings(str_one, str_two) _Generic((str_two), \
+    char*: compare_strings_lit, \
+    default: compare_strings_string) (str_one, str_two)
+// ================================================================================
 // ================================================================================ 
 #ifdef __cplusplus
 }

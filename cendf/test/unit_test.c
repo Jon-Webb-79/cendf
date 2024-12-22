@@ -39,7 +39,15 @@ const struct CMUnitTest test_data_structures[] = {
     #endif
     cmocka_unit_test(test_push_xsec),
     cmocka_unit_test(test_get_xsec_data),
-    cmocka_unit_test(test_xsec_resize)
+    cmocka_unit_test(test_xsec_resize),
+    cmocka_unit_test(test_init_string),
+    cmocka_unit_test(test_init_string_strcmp),
+    #if defined(__GNUC__) || defined(__clang__)
+        cmocka_unit_test(test_init_string_gbc),
+    #endif
+    cmocka_unit_test(test_get_string),
+    cmocka_unit_test(test_concat_string_literal),
+    cmocka_unit_test(test_concat_string_string),
 };
 // ================================================================================ 
 // ================================================================================ 
