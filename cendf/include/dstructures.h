@@ -90,7 +90,7 @@ bool push_xsec(xsec_t* cross_section, float xsec, float energy);
  * @param index The index of the desired cross-section value.
  * @return The cross-section value at the given index, or -1.0f on error (sets `errno` to EINVAL).
  */
-float get_xsec(xsec_t* cross_section, size_t index);
+const float get_xsec(xsec_t* cross_section, size_t index);
 // --------------------------------------------------------------------------------
 
 /**
@@ -101,7 +101,7 @@ float get_xsec(xsec_t* cross_section, size_t index);
  * @param index The index of the desired energy value.
  * @return The energy value at the given index, or -1.0f on error (sets `errno` to EINVAL).
  */
-float get_xsec_energy(xsec_t* cross_section, size_t index);
+const float get_xsec_energy(xsec_t* cross_section, size_t index);
 // --------------------------------------------------------------------------------
 
 /**
@@ -241,19 +241,19 @@ typedef struct vector_t vector_t;
 vector_t* init_vector(size_t len);
 // --------------------------------------------------------------------------------
 
-bool push_vector(vector_t* vec, float dat);
+bool push_back_vector(vector_t* vec, float dat);
 // --------------------------------------------------------------------------------
 
-float pop_vector(vector_t* vec);
+float pop_back_vector(vector_t* vec);
 // --------------------------------------------------------------------------------
 
 float get_vector(vector_t* vec, size_t index);
 // --------------------------------------------------------------------------------
 
-size_t vector_size(vector_t* vec);
+const size_t vector_size(vector_t* vec);
 // --------------------------------------------------------------------------------
 
-size_t vector_alloc(vector_t* vec);
+const size_t vector_alloc(vector_t* vec);
 // --------------------------------------------------------------------------------
 
 void free_vector(vector_t* vec);

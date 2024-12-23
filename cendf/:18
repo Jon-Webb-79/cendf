@@ -131,7 +131,7 @@ static bool validate_xsec(xsec_t* cross_section, size_t index) {
 
 // --------------------------------------------------------------------------------
 
-const float get_xsec(xsec_t* cross_section, size_t index) {
+float get_xsec(xsec_t* cross_section, size_t index) {
     if (!validate_xsec(cross_section, index)) {
         return -1.0f;  // Or define a constant for invalid value
     }
@@ -139,7 +139,7 @@ const float get_xsec(xsec_t* cross_section, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
-const float get_xsec_energy(xsec_t* cross_section, size_t index) {
+float get_xsec_energy(xsec_t* cross_section, size_t index) {
     if (!validate_xsec(cross_section, index)) {
         return -1.0f;  // Or define a constant for invalid value
     }
@@ -491,11 +491,11 @@ float get_vector(vector_t* vec, size_t index) {
         fprintf(stderr, "Index %zu out of bounds (len: %zu)\n", index, vec->len);
         return false;
     }
-    return vec->data[index]; 
+    return vec->data[vec->len]; 
 }
 // --------------------------------------------------------------------------------
 
-const size_t vector_size(vector_t* vec) {
+size_t vector_size(vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
@@ -505,7 +505,7 @@ const size_t vector_size(vector_t* vec) {
 }
 // --------------------------------------------------------------------------------
 
-const size_t vector_alloc(vector_t* vec) {
+size_t vector_alloc(vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));

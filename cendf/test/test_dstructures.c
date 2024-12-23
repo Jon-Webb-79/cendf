@@ -259,6 +259,93 @@ void test_string_free_data(void **state) {
 }
 // ================================================================================
 // ================================================================================ 
+
+void test_init_vector(void **state) {
+    (void) state;
+    vector_t* vec = init_vector(10);
+    assert_int_equal(0, size(vec));
+    assert_int_equal(10, alloc(vec));
+    free_vector(vec);
+}
+// --------------------------------------------------------------------------------
+
+void test_push_back_vector(void **state) {
+    (void) state;
+    vector_t* vec = init_vector(5);
+    push_back_vector(vec, 1.0);
+    push_back_vector(vec, 2.0); 
+    push_back_vector(vec, 3.0);
+    push_back_vector(vec, 4.0);
+    push_back_vector(vec, 5.0);
+    assert_int_equal(5, alloc(vec));
+    assert_int_equal(5, size(vec));
+    float dat[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+    for (size_t i = 0; i < size(vec); i++) {
+        assert_float_equal(dat[i], get_vector(vec, i), 1.0e-3);
+    }
+    free_vector(vec);
+}
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined (__clang__)
+    void test_free_vector_gbc(void **state) {
+        (void) state;
+        vector_t* vec VECTOR_GBC = init_vector(5);
+        push_back_vector(vec, 1.0);
+        push_back_vector(vec, 2.0); 
+        push_back_vector(vec, 3.0);
+        push_back_vector(vec, 4.0);
+        push_back_vector(vec, 5.0);
+        assert_int_equal(5, alloc(vec));
+        assert_int_equal(5, size(vec));
+        float dat[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+        for (size_t i = 0; i < size(vec); i++) {
+            assert_float_equal(dat[i], get_vector(vec, i), 1.0e-3);
+        }
+    }
+#endif
+// --------------------------------------------------------------------------------
+
+void test_pop_back_vector(void **state) {
+    (void) state;
+    vector_t* vec = init_vector(5);
+    push_back_vector(vec, 1.0);
+    push_back_vector(vec, 2.0); 
+    push_back_vector(vec, 3.0);
+    push_back_vector(vec, 4.0);
+    push_back_vector(vec, 5.0);
+    float var = pop_back_vector(vec);
+    assert_float_equal(5.f, var, 1.0e-3);
+    assert_int_equal(5, alloc(vec));
+    assert_int_equal(4, size(vec));
+    float dat[4] = {1.f, 2.f, 3.f, 4.f};
+    for (size_t i = 0; i < size(vec); i++) {
+        assert_float_equal(dat[i], get_vector(vec, i), 1.0e-3);
+    }
+    free_vector(vec);
+}
+// --------------------------------------------------------------------------------
+
+void test_vector_free_data(void **state) {
+    (void) state;
+    vector_t* vec = init_vector(5);
+    push_back_vector(vec, 1.0);
+    push_back_vector(vec, 2.0); 
+    push_back_vector(vec, 3.0);
+    push_back_vector(vec, 4.0);
+    push_back_vector(vec, 5.0);
+    float var = pop_back_vector(vec);
+    assert_float_equal(5.f, var, 1.0e-3);
+    assert_int_equal(5, alloc(vec));
+    assert_int_equal(4, size(vec));
+    float dat[4] = {1.f, 2.f, 3.f, 4.f};
+    for (size_t i = 0; i < size(vec); i++) {
+        assert_float_equal(dat[i], get_vector(vec, i), 1.0e-3);
+    }
+    free_data(vec);    
+}
+// ================================================================================
+// ================================================================================ 
 #endif
 // ================================================================================
 // ================================================================================

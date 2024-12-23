@@ -124,7 +124,40 @@ void test_string_size_alloc(void **state);
 /*
  * Test the free_data macro for the string_t data type
  */
-void test_string_free_data(void **date);
+void test_string_free_data(void **state);
+// ================================================================================
+// ================================================================================ 
+
+/*
+ * Test to ensure proper initialization of vector 
+ */
+void test_init_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the ability to push data to back of array
+ */
+void test_push_back_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the garbage collection utility
+ */
+#if defined (__GNUC__) || defined(__clang__)
+    void test_free_vector_gbc(void **state);
+#endif 
+// --------------------------------------------------------------------------------
+
+/*
+ * Test pop_back_vector
+ */
+void test_pop_back_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test free_data with vector_t data type
+ */
+void test_vector_free_data(void **state);
 // ================================================================================
 // ================================================================================
 #endif /* test_dstructures_H */
