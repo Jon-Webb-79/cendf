@@ -399,6 +399,49 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
     }
     return str_struct_one->len - string_len;
 }
+// --------------------------------------------------------------------------------
+
+string_t* copy_string(string_t* str) {
+    if (!str || !str->str) {
+        errno = EINVAL;
+        fprintf(stderr, "Invalid input: string_t struct or literal is NULL with error: %s\n", strerror(errno));
+        return false;
+    }
+    string_t* new_str = init_string(get_string(str));
+    if (new_str->alloc < str->alloc) 
+        reserve_string(new_str, str->alloc);
+    return new_str; 
+}
+// --------------------------------------------------------------------------------
+
+bool reserve_string(string_t* str, size_t len) {
+    if (!str || !str->str) {
+        errno = EINVAL;
+        fprintf(stderr, "Invalid input: string_t struct or literal is NULL with error: %s\n", strerror(errno));
+        return false;
+    }
+
+    // Ensure the requested length is greater than the current allocation
+    if (len <= str->alloc) {
+        errno = EINVAL;
+        fprintf(stderr, "Invalid operation: reserve_string cannot reduce memory allocation. Current alloc: %zu, requested: %zu\n", str->alloc, len);
+        return false;
+    }
+
+    // Attempt to reallocate memory
+    char* ptr = realloc(str->str, sizeof(char) * len);
+    if (!ptr) {
+        errno = ENOMEM;
+        fprintf(stderr, "Failed to reallocate memory with error: %s\n", strerror(errno));
+        return false;
+    }
+
+    // Update the string_t structure with the new allocation
+    str->str = ptr;
+    str->alloc = len;
+
+    return true;
+}
 // ================================================================================
 // ================================================================================
 
@@ -699,6 +742,21 @@ void _free_vector(vector_t** vec) {
     if (vec && *vec) {
         free_vector(*vec);
     }
+}
+// --------------------------------------------------------------------------------
+
+vector_t* copy_vector(vector_t* vec) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+    vector_t* new_vec = init_vector(vec->alloc);
+    if (!new_vec) return NULL;
+    for (size_t i = 0; i < vec->len; i++) {
+        push_back_vector(new_vec, get_vector(vec, i));
+    }
+    return new_vec;
 }
 // ================================================================================
 // ================================================================================

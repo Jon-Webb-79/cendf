@@ -248,13 +248,39 @@ void test_string_size_alloc(void **state) {
 
 void test_string_free_data(void **state) {
     (void) state;
-
     string_t* str = init_string("Hello");
     const char* new_str = get_string(str);
     int cmp = compare_strings(str, (char*)new_str);
     assert_int_equal(cmp, 0);
     assert_int_equal(5, size(str));
     assert_int_equal(6, alloc(str));
+    free_data(str);
+}
+// --------------------------------------------------------------------------------
+
+void test_copy_string(void **state) {
+    (void) state;
+    string_t* str = init_string("Hello");
+    reserve_string(str, 20);
+    string_t* new_str = copy_string(str);
+    int cmp = compare_strings(str, new_str);
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, size(new_str));
+    assert_int_equal(20, alloc(new_str));
+    free_data(str);
+    free_data(new_str);
+}
+// --------------------------------------------------------------------------------
+
+void test_reserve_string(void **state) {
+    (void) state;
+    string_t* str = init_string("Hello");
+    reserve_string(str, 20);
+    const char* new_str = get_string(str);
+    int cmp = compare_strings(str, (char*)new_str);
+    assert_int_equal(cmp, 0);
+    assert_int_equal(5, size(str));
+    assert_int_equal(20, alloc(str));
     free_data(str);
 }
 // ================================================================================
@@ -429,6 +455,33 @@ void test_vector_free_data(void **state) {
         assert_float_equal(dat[i], get_vector(vec, i), 1.0e-3);
     }
     free_data(vec);    
+}
+// --------------------------------------------------------------------------------
+
+void test_copy_vector(void **state) {
+    (void) state;
+    vector_t* vec = init_vector(5);
+    push_back_vector(vec, 1.0);
+    push_back_vector(vec, 2.0); 
+    push_back_vector(vec, 3.0);
+    push_back_vector(vec, 4.0);
+    push_back_vector(vec, 5.0);
+    assert_int_equal(5, alloc(vec));
+    assert_int_equal(5, size(vec));
+    float dat[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+    for (size_t i = 0; i < size(vec); i++) {
+        assert_float_equal(dat[i], get_vector(vec, i), 1.0e-3);
+    }
+
+    vector_t* new_vec = copy_vector(vec);
+
+    assert_int_equal(5, alloc(new_vec));
+    assert_int_equal(5, size(new_vec));
+    for (size_t i = 0; i < size(new_vec); i++) {
+        assert_float_equal(dat[i], get_vector(new_vec, i), 1.0e-3);
+    }
+    free_vector(vec);
+    free_vector(new_vec);
 }
 // ================================================================================
 // ================================================================================ 

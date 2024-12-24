@@ -336,6 +336,29 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
 #define compare_strings(str_one, str_two) _Generic((str_two), \
     char*: compare_strings_lit, \
     default: compare_strings_string) (str_one, str_two)
+// --------------------------------------------------------------------------------
+
+/**
+ * @function copy_string
+ * @brief Creates a deep copy of a string data type
+ *
+ * @param str A string_t data type
+ * @return A string_t data type with the exact contents of str
+ */
+string_t* copy_string(string_t *str);
+// --------------------------------------------------------------------------------
+
+/**
+ * @function reserve_string
+ * @brief Reserves memory for the string_t data type to avoid constant memory allocations
+ *
+ * Will not allow the user to reserve less memory than exists at function call 
+ *
+ * @param str A string_t data type
+ * @param len The buffer length to allocate in string
+ * @return true of allocation is successful, false otherwise
+ */
+bool reserve_string(string_t* str, size_t len);
 // ================================================================================ 
 // ================================================================================
 // VECTOR IMPLEMENTATION
@@ -509,6 +532,15 @@ void _free_vector(vector_t** vec);
      */
     #define VECTOR_GBC __attribute__((cleanup(_free_vector)))
 #endif
+// --------------------------------------------------------------------------------
+/**
+ * @function copy_vector
+ * @brief Copies the contents of one vector into another
+ *
+ * @param vec A pointer to a vector_t data type
+ * @return A pointer to a dynamically allocated vector_t object
+ */
+vector_t* copy_vector(vector_t* vec);
 // ================================================================================
 // ================================================================================
 

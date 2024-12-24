@@ -125,6 +125,18 @@ void test_string_size_alloc(void **state);
  * Test the free_data macro for the string_t data type
  */
 void test_string_free_data(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the copy_string function
+ */
+void test_copy_string(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the reserve function to ensure it adequately increase mem allocation
+ */
+void test_reserve_string(void **state);
 // ================================================================================
 // ================================================================================ 
 
@@ -182,6 +194,12 @@ void test_pop_any_vector(void **state);
  * Test free_data with vector_t data type
  */
 void test_vector_free_data(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test the ability to copy vector contents to another vector
+ */
+void test_copy_vector(void **date);
 // ================================================================================
 // ================================================================================
 #endif /* test_dstructures_H */
