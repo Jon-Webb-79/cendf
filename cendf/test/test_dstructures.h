@@ -141,6 +141,18 @@ void test_push_back_vector(void **state);
 // --------------------------------------------------------------------------------
 
 /*
+ * Test to ensure function pushes data to beginning of vector
+ */
+void test_push_front_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test to ensure function inserts anywhere in a vector
+ */
+void test_insert_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
  * Test the garbage collection utility
  */
 #if defined (__GNUC__) || defined(__clang__)
@@ -152,6 +164,18 @@ void test_push_back_vector(void **state);
  * Test pop_back_vector
  */
 void test_pop_back_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test to ensure function pops from beginning of vector
+ */
+void test_pop_front_vector(void **state);
+// --------------------------------------------------------------------------------
+
+/*
+ * Test to ensure function pops from location within vector
+ */
+void test_pop_any_vector(void **state);
 // --------------------------------------------------------------------------------
 
 /*

@@ -54,10 +54,14 @@ const struct CMUnitTest test_data_structures[] = {
     cmocka_unit_test(test_string_free_data),
     cmocka_unit_test(test_init_vector),
     cmocka_unit_test(test_push_back_vector),
+    cmocka_unit_test(test_push_front_vector),
+    cmocka_unit_test(test_insert_vector),
     #if defined (__GNUC__) || defined (__clang__)
         cmocka_unit_test(test_free_vector_gbc),
     #endif
     cmocka_unit_test(test_pop_back_vector),
+    cmocka_unit_test(test_pop_front_vector), 
+    cmocka_unit_test(test_pop_any_vector),
     cmocka_unit_test(test_vector_free_data),
 };
 // ================================================================================ 

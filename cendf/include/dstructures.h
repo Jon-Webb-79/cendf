@@ -244,7 +244,19 @@ vector_t* init_vector(size_t len);
 bool push_back_vector(vector_t* vec, float dat);
 // --------------------------------------------------------------------------------
 
+bool push_front_vector(vector_t* vec, float dat);
+// --------------------------------------------------------------------------------
+
+bool insert_vector(vector_t* vec, float dat, size_t index);
+// --------------------------------------------------------------------------------
+
 float pop_back_vector(vector_t* vec);
+// --------------------------------------------------------------------------------
+
+float pop_front_vector(vector_t* vec);
+// --------------------------------------------------------------------------------
+
+float pop_any_vector(vector_t* vec, size_t index);
 // --------------------------------------------------------------------------------
 
 float get_vector(vector_t* vec, size_t index);

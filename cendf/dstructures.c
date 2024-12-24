@@ -463,11 +463,105 @@ bool push_back_vector(vector_t* vec, float dat) {
 }
 // --------------------------------------------------------------------------------
 
-float pop_back_vector(vector_t* vec) {
+bool push_front_vector(vector_t* vec, float dat) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
         return false;
+    }
+    // Check if reallocation is needed
+    if (vec->alloc <= vec->len) {
+        size_t new_alloc = vec->alloc == 0 ? 1 : vec->alloc;
+        if (new_alloc < XSEC_THRESHOLD) {
+            new_alloc *= 2;  // Exponential growth for smaller allocations
+        } else {
+            new_alloc += XSEC_FIXED_AMOUNT;  // Fixed growth beyond threshold
+        }
+
+        // Attempt to reallocate the cross-section array
+        float* ptr = realloc(vec->data, new_alloc * sizeof(float));
+        if (!ptr) {
+            errno = ENOMEM;
+            fprintf(stderr, "Failed to reallocate for push_xsec\n");
+            return false;
+        }
+
+        // Update structure only after successful reallocation
+        vec->data = ptr;
+        vec->alloc = new_alloc;
+    }
+    // Shift existing elements to the right
+    if (vec->len > 0) {
+        memmove(vec->data + 1, vec->data, vec->len * sizeof(float));
+    }
+    // Insert the new element at the front
+    vec->data[0] = dat;
+    vec->len++;
+    return true;
+}
+// --------------------------------------------------------------------------------
+
+bool insert_vector(vector_t* vec, float dat, size_t index) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return false;
+    }
+
+    // Ensure index is within valid range
+    if (index > vec->len) {  // Allow inserting at the end (index == vec->len)
+        errno = ERANGE;
+        fprintf(stderr, "Index value of %ld is out of range for length %ld\n", index, vec->len);
+        return false;
+    }
+
+    // Handle edge cases
+    if (index == 0) {
+        return push_front_vector(vec, dat);  // Insert at the front
+    }
+    if (index == vec->len) {
+        return push_back_vector(vec, dat);  // Append at the end
+    }
+
+    // Check if reallocation is needed
+    if (vec->alloc <= vec->len) {
+        size_t new_alloc = vec->alloc == 0 ? 1 : vec->alloc;
+        if (new_alloc < XSEC_THRESHOLD) {
+            new_alloc *= 2;  // Exponential growth for smaller allocations
+        } else {
+            new_alloc += XSEC_FIXED_AMOUNT;  // Fixed growth beyond threshold
+        }
+
+        // Attempt to reallocate the vector's array
+        float* new_data = realloc(vec->data, new_alloc * sizeof(float));
+        if (!new_data) {
+            errno = ENOMEM;
+            fprintf(stderr, "Failed to reallocate for insert_vector with error: %s\n", strerror(errno));
+            return false;
+        }
+
+        // Update structure only after successful reallocation
+        vec->data = new_data;
+        vec->alloc = new_alloc;
+    }
+
+    // Shift elements to the right to make space for the new element
+    size_t len = vec->len - index;  // Number of elements to shift
+    memmove(vec->data + index + 1, vec->data + index, len * sizeof(float));
+
+    // Insert the new element
+    vec->data[index] = dat;
+    vec->len++;  // Update the length of the vector
+
+    return true;
+}
+// --------------------------------------------------------------------------------
+
+float pop_back_vector(vector_t* vec) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return FLT_MIN;
     }
     if (vec->len == 0) {
         errno = EINVAL;
@@ -477,6 +571,73 @@ float pop_back_vector(vector_t* vec) {
     float dat = vec->data[vec->len-1];
     vec->len--;
     return dat;
+}
+// --------------------------------------------------------------------------------
+
+float pop_front_vector(vector_t* vec) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return FLT_MIN;  // Return FLT_MIN to indicate error
+    }
+
+    if (vec->len == 0) {
+        errno = EINVAL;
+        fprintf(stderr, "Vector is empty, cannot pop\n");
+        return FLT_MIN;  // Return FLT_MIN to indicate error
+    }
+
+    // Store the first element
+    float dat = vec->data[0];
+
+    // Shift elements to the left if there are more than one
+    if (vec->len > 1) {
+        memmove(vec->data, vec->data + 1, (vec->len - 1) * sizeof(float));
+    }
+
+    // Decrement the length of the vector
+    vec->len--;
+
+    return dat;  // Return the popped value
+}
+// --------------------------------------------------------------------------------
+
+float pop_any_vector(vector_t* vec, size_t index) {
+    if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return FLT_MIN;  // Return FLT_MIN to indicate error
+    }
+
+    if (vec->len == 0) {
+        errno = EINVAL;
+        fprintf(stderr, "Vector is empty, cannot pop\n");
+        return FLT_MIN;  // Return FLT_MIN to indicate error
+    }
+
+    if (index >= vec->len) {  // Ensure index is within bounds
+        errno = ERANGE;
+        fprintf(stderr, "Index %ld is out of range for vector length %ld\n", index, vec->len);
+        return FLT_MIN;  // Return FLT_MIN to indicate error
+    }
+
+    // Handle special cases for front and back
+    if (index == 0) {
+        return pop_front_vector(vec);  // Remove the first element
+    } else if (index == vec->len - 1) {
+        return pop_back_vector(vec);  // Remove the last element
+    }
+
+    // Retrieve the element to be removed
+    float dat = vec->data[index];
+
+    // Shift elements to close the gap
+    memmove(vec->data + index, vec->data + index + 1, (vec->len - index - 1) * sizeof(float));
+
+    // Update vector length
+    vec->len--;
+
+    return dat;  // Return the removed element
 }
 // --------------------------------------------------------------------------------
 
