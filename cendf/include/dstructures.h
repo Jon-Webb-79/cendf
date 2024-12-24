@@ -175,46 +175,164 @@ void _free_xsec(xsec_t** cross_section);
 typedef struct string_t string_t;
 // --------------------------------------------------------------------------------
 
+/**
+ * @function init_string
+ * @brief Allocates and initializes a dynamically allocated string_t object.
+ *
+ * The function initializes the string_t structure with the contents of the provided
+ * string, copying the string into dynamically allocated memory.
+ *
+ * @param str A null-terminated C string to initialize the string_t object with.
+ * @return A pointer to the initialized string_t object, or NULL on failure.
+ *         Sets errno to ENOMEM if memory allocation fails or EINVAL if `str` is NULL.
+ */
 string_t* init_string(const char* str);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function free_string
+ * @brief Frees all memory associated with a string_t object.
+ *
+ * The function releases the memory for the internal string and the string_t structure itself.
+ *
+ * @param str A pointer to the string_t object to be freed.
+ * @return void. Logs an error if `str` is NULL.
+ */
 void free_string(string_t* str);
 // -------------------------------------------------------------------------------- 
 
+/**
+ * @function _free_string
+ * @brief A helper function for use with cleanup attributes to free string_t objects.
+ *
+ * This function frees the memory of a string_t object and sets the pointer to NULL.
+ *
+ * @param str A double pointer to the string_t object to be freed.
+ * @return void.
+ */
 void _free_string(string_t** str);
 // --------------------------------------------------------------------------------
 
 #if defined(__GNUC__) || defined (__clang__)
+    /**
+     * @macro STRING_GBC
+     * @brief A macro for enabling automatic cleanup of string_t objects.
+     *
+     * This macro uses the cleanup attribute to automatically call `_free_string`
+     * when the scope ends, ensuring proper memory management.
+     */
     #define STRING_GBC __attribute__((cleanup(_free_string)))
 #endif
 // --------------------------------------------------------------------------------
 
+/**
+ * @function get_string
+ * @brief Retrieves the C string stored in a string_t object.
+ *
+ * @param str A pointer to the string_t object.
+ * @return A pointer to the null-terminated C string stored in the object,
+ *         or NULL if `str` is NULL or invalid. Sets errno to EINVAL on error.
+ */
 const char* get_string(const string_t* str);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function string_size
+ * @brief Retrieves the current length of the string stored in a string_t object.
+ *
+ * @param str A pointer to the string_t object.
+ * @return The length of the string in bytes (excluding the null terminator),
+ *         or -1 on error. Sets errno to EINVAL if `str` is NULL.
+ */
 size_t string_size(const string_t* str);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function string_alloc
+ * @brief Retrieves the total allocated capacity of the string in a string_t object.
+ *
+ * @param str A pointer to the string_t object.
+ * @return The total allocated capacity in bytes, or -1 on error.
+ *         Sets errno to EINVAL if `str` is NULL.
+ */
 size_t string_alloc(const string_t* str);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function string_string_concat
+ * @brief Concatenates the contents of one string_t object to another.
+ *
+ * @param str1 A pointer to the destination string_t object.
+ * @param str2 A pointer to the source string_t object.
+ * @return true if successful, false on failure. Sets errno to ENOMEM if memory
+ *         allocation fails or EINVAL if either input is NULL.
+ */
 bool string_string_concat(string_t* str, const string_t* string);
 // -------------------------------------------------------------------------------- 
 
+/**
+ * @function string_lit_concat
+ * @brief Concatenates a string literal to a string_t object.
+ *
+ * @param str1 A pointer to the destination string_t object.
+ * @param literal A null-terminated C string to append to the string_t object.
+ * @return true if successful, false on failure. Sets errno to ENOMEM if memory
+ *         allocation fails or EINVAL if either input is NULL.
+ */
 bool string_lit_concat(string_t* str, const char* string);
 // --------------------------------------------------------------------------------
 
+/**
+ * @macro string_concat
+ * @brief A generic macro that selects the appropriate concatenation function
+ *        based on the type of the second argument.
+ *
+ * If the second argument is a `char*`, it calls `string_lit_concat`.
+ * Otherwise, it calls `string_string_concat`.
+ */
 #define string_concat(str_one, str_two) _Generic((str_two), \
     char*: string_lit_concat, \
     default: string_string_concat) (str_one, str_two)
 // --------------------------------------------------------------------------------
 
+/**
+ * @function compare_strings_lit
+ * @brief Compares a string_t object with a string literal.
+ *
+ * The comparison is lexicographical and case-sensitive.
+ *
+ * @param str_struct A pointer to the string_t object.
+ * @param string A null-terminated C string to compare with.
+ * @return An integer less than, equal to, or greater than zero if the string_t
+ *         is found, respectively, to be less than, to match, or to be greater than `string`.
+ *         Returns INT_MIN on error (sets errno to EINVAL).
+ */
 int compare_strings_lit(const string_t* str_struct, const char* string);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function compare_strings_string
+ * @brief Compares two string_t objects.
+ *
+ * The comparison is lexicographical and case-sensitive.
+ *
+ * @param str_struct_one A pointer to the first string_t object.
+ * @param str_struct_two A pointer to the second string_t object.
+ * @return An integer less than, equal to, or greater than zero if the first string_t
+ *         is found, respectively, to be less than, to match, or to be greater than the second string_t.
+ *         Returns INT_MIN on error (sets errno to EINVAL).
+ */
 int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_two);
 // --------------------------------------------------------------------------------
 
+/**
+ * @macro compare_strings
+ * @brief A generic macro that selects the appropriate string comparison function
+ *        based on the type of the second argument.
+ *
+ * If the second argument is a `char*`, it calls `compare_strings_lit`.
+ * Otherwise, it calls `compare_strings_string`.
+ */
 #define compare_strings(str_one, str_two) _Generic((str_two), \
     char*: compare_strings_lit, \
     default: compare_strings_string) (str_one, str_two)
@@ -238,60 +356,239 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
 typedef struct vector_t vector_t;
 // --------------------------------------------------------------------------------
 
+/**
+ * @function init_vector
+ * @brief Initializes a dynamically allocated vector_t object.
+ *
+ * Allocates memory for a vector_t structure and its internal data array.
+ *
+ * @param len The initial capacity of the vector.
+ * @return A pointer to the initialized vector_t object, or NULL on failure.
+ *         Sets errno to ENOMEM if memory allocation fails.
+ */
 vector_t* init_vector(size_t len);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function push_back_vector
+ * @brief Appends a float value to the end of the vector.
+ *
+ * Dynamically grows the vector if the capacity is exceeded.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @param dat The float value to append.
+ * @return true on success, false on failure. Sets errno to ENOMEM or EINVAL.
+ */
 bool push_back_vector(vector_t* vec, float dat);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function push_front_vector
+ * @brief Inserts a float value at the beginning of the vector.
+ *
+ * Dynamically grows the vector if the capacity is exceeded, shifting existing elements.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @param dat The float value to insert.
+ * @return true on success, false on failure. Sets errno to ENOMEM or EINVAL.
+ */
 bool push_front_vector(vector_t* vec, float dat);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function insert_vector
+ * @brief Inserts a float value at a specified index in the vector.
+ *
+ * Dynamically grows the vector if the capacity is exceeded, shifting existing elements.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @param dat The float value to insert.
+ * @param index The index where the value should be inserted.
+ * @return true on success, false on failure. Sets errno to ENOMEM, EINVAL, or ERANGE.
+ */
 bool insert_vector(vector_t* vec, float dat, size_t index);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function pop_back_vector
+ * @brief Removes the last element from the vector and returns its value.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @return The removed float value, or FLT_MIN on error. Sets errno to EINVAL if the vector is empty or NULL.
+ */
 float pop_back_vector(vector_t* vec);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function pop_front_vector
+ * @brief Removes the first element from the vector and returns its value.
+ *
+ * Shifts all remaining elements to the left to fill the gap.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @return The removed float value, or FLT_MIN on error. Sets errno to EINVAL if the vector is empty or NULL.
+ */
 float pop_front_vector(vector_t* vec);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function pop_any_vector
+ * @brief Removes the element at the specified index from the vector and returns its value.
+ *
+ * Shifts all subsequent elements to the left to fill the gap.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @param index The index of the element to remove.
+ * @return The removed float value, or FLT_MIN on error. Sets errno to EINVAL or ERANGE.
+ */
 float pop_any_vector(vector_t* vec, size_t index);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function get_vector
+ * @brief Retrieves the float value at a specified index in the vector.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @param index The index of the element to retrieve.
+ * @return The float value at the specified index, or FLT_MIN on error. Sets errno to EINVAL or ERANGE.
+ */
 float get_vector(vector_t* vec, size_t index);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function vector_size
+ * @brief Retrieves the current number of elements in the vector.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @return The number of elements in the vector, or 0 if the vector is NULL.
+ */
 const size_t vector_size(vector_t* vec);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function vector_alloc
+ * @brief Retrieves the total allocated capacity of the vector.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @return The allocated capacity of the vector, or 0 if the vector is NULL.
+ */
 const size_t vector_alloc(vector_t* vec);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function free_vector
+ * @brief Frees all memory associated with the vector_t object.
+ *
+ * Releases memory for the internal data array and the vector_t structure itself.
+ *
+ * @param vec A pointer to the vector_t object.
+ * @return void. Logs an error if `vec` is NULL.
+ */
 void free_vector(vector_t* vec);
 // --------------------------------------------------------------------------------
 
+/**
+ * @function _free_vector
+ * @brief A helper function for use with cleanup attributes to free vector_t objects.
+ *
+ * Frees the memory of a vector_t object and sets the pointer to NULL.
+ *
+ * @param vec A double pointer to the vector_t object to be freed.
+ * @return void.
+ */
 void _free_vector(vector_t** vec);
 // --------------------------------------------------------------------------------
 
 #if defined(__GNUC__) || defined (__clang__)
+    /**
+     * @macro VECTOR_GBC
+     * @brief A macro for enabling automatic cleanup of vector_t objects.
+     *
+     * This macro uses the cleanup attribute to automatically call `_free_vector`
+     * when the scope ends, ensuring proper memory management.
+     */
     #define VECTOR_GBC __attribute__((cleanup(_free_vector)))
 #endif
 // ================================================================================
 // ================================================================================
 
+/**
+ * @macro size
+ * @brief Retrieves the current size (number of elements) of a dynamic data structure.
+ *
+ * This macro uses `_Generic` to dispatch the appropriate size retrieval function
+ * based on the type of the input data structure.
+ *
+ * Supported types and their corresponding functions:
+ *  - `xsec_t*`: Calls `xsec_size`
+ *  - `string_t*`: Calls `string_size`
+ *  - `vector_t*`: Calls `vector_size`
+ *
+ * @param d_struct A pointer to the data structure (`xsec_t*`, `string_t*`, or `vector_t*`).
+ * @return The size of the data structure, as returned by the corresponding function.
+ *
+ * Example:
+ * @code
+ * vector_t* vec = init_vector(5);
+ * size_t vec_size = size(vec);  // Calls vector_size
+ * @endcode
+ */
 #define size(d_struct) _Generic((d_struct), \
     xsec_t*: xsec_size, \
     string_t*: string_size, \
     vector_t*: vector_size) (d_struct)
 // --------------------------------------------------------------------------------
 
+/**
+ * @macro alloc
+ * @brief Retrieves the total allocated capacity of a dynamic data structure.
+ *
+ * This macro uses `_Generic` to dispatch the appropriate capacity retrieval function
+ * based on the type of the input data structure.
+ *
+ * Supported types and their corresponding functions:
+ *  - `xsec_t*`: Calls `xsec_alloc`
+ *  - `string_t*`: Calls `string_alloc`
+ *  - `vector_t*`: Calls `vector_alloc`
+ *
+ * @param d_struct A pointer to the data structure (`xsec_t*`, `string_t*`, or `vector_t*`).
+ * @return The allocated capacity of the data structure, as returned by the corresponding function.
+ *
+ * Example:
+ * @code
+ * vector_t* vec = init_vector(5);
+ * size_t vec_alloc = alloc(vec);  // Calls vector_alloc
+ * @endcode
+ */
 #define alloc(d_struct) _Generic((d_struct), \
     xsec_t*: xsec_alloc, \
     string_t*: string_alloc, \
     vector_t*: vector_alloc) (d_struct)
 // --------------------------------------------------------------------------------
 
+/**
+ * @macro free_data
+ * @brief Frees the memory associated with a dynamic data structure.
+ *
+ * This macro uses `_Generic` to dispatch the appropriate free function
+ * based on the type of the input data structure. If the type does not match
+ * one of the supported types, it defaults to the standard `free` function.
+ *
+ * Supported types and their corresponding functions:
+ *  - `xsec_t*`: Calls `free_xsec`
+ *  - `string_t*`: Calls `free_string`
+ *  - `vector_t*`: Calls `free_vector`
+ *  - Default: Calls `free`
+ *
+ * @param d_struct A pointer to the data structure (`xsec_t*`, `string_t*`, `vector_t*`, or other pointer).
+ * @return void.
+ *
+ * Example:
+ * @code
+ * vector_t* vec = init_vector(5);
+ * free_data(vec);  // Calls free_vector
+ * @endcode
+ */
 #define free_data(d_struct) _Generic((d_struct), \
     xsec_t*: free_xsec, \
     string_t*: free_string, \
