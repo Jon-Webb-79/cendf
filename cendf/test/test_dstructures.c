@@ -152,6 +152,151 @@ void test_xsec_free_data(void **state) {
     assert_int_equal(alloc(cross_sec), 4);
     free_data(cross_sec);
 }
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_exact_match(void **state) {
+    (void) state; // Unused
+    xsec_t* xsec = init_xsec(5);
+    push_xsec(xsec, 10.f, 1.f);
+    push_xsec(xsec, 20.f, 2.f);
+    push_xsec(xsec, 30.f, 3.f);
+    push_xsec(xsec, 40.f, 4.f);
+    push_xsec(xsec, 50.f, 5.f);
+    float result = interp_xsec(xsec, 3.0);
+    assert_float_equal(result, 30.0, 1e-6);
+    free_xsec(xsec);
+}
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_interpolation(void **state) {
+    (void) state; // Unused
+    xsec_t* xsec = init_xsec(5);
+    assert_non_null(xsec);
+
+    push_xsec(xsec, 10.f, 1.f);
+    push_xsec(xsec, 20.f, 2.f);
+    push_xsec(xsec, 30.f, 3.f);
+    push_xsec(xsec, 40.f, 4.f);
+    push_xsec(xsec, 50.f, 5.f);
+
+    float result = interp_xsec(xsec, 2.5);
+    assert_float_equal(result, 25.0, 1e-6);
+
+    free_xsec(xsec);
+}
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_below_range(void **state) {
+    (void) state; // Unused
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    xsec_t* xsec = init_xsec(5);
+    assert_non_null(xsec);
+    push_xsec(xsec, 10.f, 1.f);
+    push_xsec(xsec, 20.f, 2.f);
+    push_xsec(xsec, 30.f, 3.f);
+    push_xsec(xsec, 40.f, 4.f);
+    push_xsec(xsec, 50.f, 5.f);
+
+    float result = interp_xsec(xsec, 0.5);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr;
+    assert_float_equal(result, -1.0, 1e-6); // Assuming -1.0 indicates out of bounds
+
+    free_xsec(xsec);
+}
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_above_range(void **state) {
+    (void) state; // Unused
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    xsec_t* xsec = init_xsec(5);
+    assert_non_null(xsec);
+
+    push_xsec(xsec, 10.f, 1.f);
+    push_xsec(xsec, 20.f, 2.f);
+    push_xsec(xsec, 30.f, 3.f);
+    push_xsec(xsec, 40.f, 4.f);
+    push_xsec(xsec, 50.f, 5.f);
+
+    float result = interp_xsec(xsec, 5.5);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr;
+    assert_float_equal(result, -1.0, 1e-6); // Assuming -1.0 indicates out of bounds
+
+    free_xsec(xsec);
+}
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_single_point(void **state) {
+    (void) state; // Unused
+    xsec_t* xsec = init_xsec(1);
+    assert_non_null(xsec);
+
+    push_xsec(xsec, 30.f, 3.f);
+
+    float result = interp_xsec(xsec, 3.0);
+    assert_float_equal(result, 30.0, 1e-6);
+
+    free_xsec(xsec);
+}
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_null_pointer(void **state) {
+    (void) state; // Unused
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    float result = interp_xsec(NULL, 3.0);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr;
+    assert_float_equal(result, -1.0, 1e-6); // Assuming -1.0 indicates invalid input
+}
+// --------------------------------------------------------------------------------
+
+void test_interp_xsec_bounds(void **state) {
+    (void) state; // Unused
+    xsec_t* xsec = init_xsec(5);
+    assert_non_null(xsec);
+
+    push_xsec(xsec, 10.f, 1.f);
+    push_xsec(xsec, 20.f, 2.f);
+    push_xsec(xsec, 30.f, 3.f);
+    push_xsec(xsec, 40.f, 4.f);
+    push_xsec(xsec, 50.f, 5.f);
+
+    float lower_result = interp_xsec(xsec, 1.0);
+    float upper_result = interp_xsec(xsec, 5.0);
+
+    assert_float_equal(lower_result, 10.0, 1e-6);
+    assert_float_equal(upper_result, 50.0, 1e-6);
+
+    free_xsec(xsec);
+}
 // ================================================================================
 // ================================================================================ 
 

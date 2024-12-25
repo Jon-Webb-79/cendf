@@ -115,7 +115,7 @@ bool push_xsec(xsec_t* cross_section, float xsec, float energy) {
 }
 // -------------------------------------------------------------------------------- 
 
-static bool validate_xsec(xsec_t* cross_section, size_t index) {
+static bool validate_xsec(const xsec_t* cross_section, size_t index) {
     if (!cross_section || !cross_section->xs || !cross_section->energy) {
         errno = EINVAL;
         fprintf(stderr, "Invalid cross_section passed to function\n");
@@ -131,7 +131,7 @@ static bool validate_xsec(xsec_t* cross_section, size_t index) {
 
 // --------------------------------------------------------------------------------
 
-const float get_xsec(xsec_t* cross_section, size_t index) {
+const float get_xsec(const xsec_t* cross_section, size_t index) {
     if (!validate_xsec(cross_section, index)) {
         return -1.0f;  // Or define a constant for invalid value
     }
@@ -139,7 +139,7 @@ const float get_xsec(xsec_t* cross_section, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
-const float get_xsec_energy(xsec_t* cross_section, size_t index) {
+const float get_xsec_energy(const xsec_t* cross_section, size_t index) {
     if (!validate_xsec(cross_section, index)) {
         return -1.0f;  // Or define a constant for invalid value
     }
@@ -147,7 +147,7 @@ const float get_xsec_energy(xsec_t* cross_section, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
-const xsecData get_xsec_data(xsec_t* cross_section, size_t index) {
+const xsecData get_xsec_data(const xsec_t* cross_section, size_t index) {
     if (!validate_xsec(cross_section, index)) {
         return (xsecData){ .xs = -1.f, .energy = -1.f };  // Or define an invalid xsec_data value
     }
@@ -158,7 +158,76 @@ const xsecData get_xsec_data(xsec_t* cross_section, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
-size_t xsec_size(xsec_t* cross_section) {
+static bool find_indices(const float *array, size_t size, float value, 
+                        size_t *lower, size_t *upper) {
+    size_t low = 0, high = size - 1;
+
+    if (value < array[low]) {
+        *lower = 0;
+        *upper = 1;
+        errno = ERANGE;
+        return false; // Below range
+    }
+    if (value > array[high]) {
+        *lower = high - 1;
+        *upper = high;
+        errno = ERANGE;
+        return false; // Above range
+    }
+
+    while (low <= high) {
+        size_t mid = low + (high - low) / 2;
+
+        if (array[mid] == value) {
+            *lower = *upper = mid;
+            return true; // Exact match found
+        } else if (array[mid] < value) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+
+    *lower = high;
+    *upper = low;
+    return false; // Value lies between lower and upper
+}
+// --------------------------------------------------------------------------------
+
+const float interp_xsec(const xsec_t *xsec, float energy) {
+    if (!xsec || !xsec->xs || !xsec->energy) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer passed to inter_xsec function\n");
+        return -1.0f;
+    }
+
+    if (xsec->len == 0) {
+        errno = EINVAL;
+        fprintf(stderr, "xsec_t data type not populated with data\n");
+        return -1.0f;
+    }
+
+    size_t lower, upper;
+
+    if (find_indices(xsec->energy, xsec->len, energy, &lower, &upper)) {
+        return xsec->xs[lower]; // Exact match
+    }
+    if (errno == ERANGE) {
+        fprintf(stderr, "Energy is out of bounds for cross section database\n");
+        return -1.0f;
+    }
+
+    // Perform linear interpolation
+    float E1 = xsec->energy[lower];
+    float E2 = xsec->energy[upper];
+    float XS1 = xsec->xs[lower];
+    float XS2 = xsec->xs[upper];
+
+    return XS1 + (XS2 - XS1) * (energy - E1) / (E2 - E1);
+}
+// --------------------------------------------------------------------------------
+
+size_t xsec_size(const xsec_t* cross_section) {
     if (!cross_section || !cross_section->xs || !cross_section->energy) {
         errno = EINVAL;
         fprintf(stderr, "Invalid cross section passed to xsec_size\n");
@@ -168,7 +237,7 @@ size_t xsec_size(xsec_t* cross_section) {
 }
 // --------------------------------------------------------------------------------
 
-size_t xsec_alloc(xsec_t* cross_section) {
+size_t xsec_alloc(const xsec_t* cross_section) {
     if (!cross_section || !cross_section->xs || !cross_section->energy) {
         errno = EINVAL;
         fprintf(stderr, "Invalid cross section passed to xsec_alloc\n");

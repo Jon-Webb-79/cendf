@@ -90,7 +90,7 @@ bool push_xsec(xsec_t* cross_section, float xsec, float energy);
  * @param index The index of the desired cross-section value.
  * @return The cross-section value at the given index, or -1.0f on error (sets `errno` to EINVAL).
  */
-const float get_xsec(xsec_t* cross_section, size_t index);
+const float get_xsec(const xsec_t* cross_section, size_t index);
 // --------------------------------------------------------------------------------
 
 /**
@@ -101,7 +101,7 @@ const float get_xsec(xsec_t* cross_section, size_t index);
  * @param index The index of the desired energy value.
  * @return The energy value at the given index, or -1.0f on error (sets `errno` to EINVAL).
  */
-const float get_xsec_energy(xsec_t* cross_section, size_t index);
+const float get_xsec_energy(const xsec_t* cross_section, size_t index);
 // --------------------------------------------------------------------------------
 
 /**
@@ -114,8 +114,35 @@ const float get_xsec_energy(xsec_t* cross_section, size_t index);
  *         a structure with values -1.0f if an error occurs (sets `errno` to EINVAL).
  *         The returned struct is immutable!
  */
-const xsecData get_xsec_data(xsec_t* cross_section, size_t index);
+const xsecData get_xsec_data(const xsec_t* cross_section, size_t index);
 // --------------------------------------------------------------------------------
+
+/**
+ * @brief Interpolates or retrieves the cross-section value for a given energy
+ *        from an xsec_t structure.
+ *
+ * @param xsec Pointer to an xsec_t structure containing sorted arrays of energy
+ *             values and corresponding cross-section values.
+ * @param energy The energy value for which the cross-section value is to be
+ *               retrieved or interpolated.
+ * @return The cross-section value corresponding to the specified energy, or -1.0f
+ *         on error.
+ *
+ * @details
+ * - If the `energy` matches an exact value in the `.energy` array of `xsec`,
+ *   the corresponding `.xs` value is returned.
+ * - If the `energy` lies between two values, the function interpolates the
+ *   cross-section using linear interpolation.
+ * - If `xsec` or its `.energy` or `.xs` attributes are `NULL`, the function sets
+ *   `errno` to `EINVAL`, logs an error to `stderr`, and returns -1.0f.
+ * - If the energy is out of bounds, the function sets `errno` to `ERANGE`,
+ *   logs an error to `stderr`, and returns -1.0f.
+ *
+ * @note The function assumes that the `.energy` array in `xsec` is sorted
+ *       in ascending order.
+ */
+const float interp_xsec(const xsec_t* cross_section, float energy);
+// -------------------------------------------------------------------------------- 
 
 /**
  * @function xsec_size
@@ -124,7 +151,7 @@ const xsecData get_xsec_data(xsec_t* cross_section, size_t index);
  * @param cross_section Pointer to the `xsec_t` structure.
  * @return The number of elements stored in the structure, or 0 if the structure is NULL.
  */
-size_t xsec_size(xsec_t* cross_section);
+size_t xsec_size(const xsec_t* cross_section);
 // --------------------------------------------------------------------------------
 
 /**
@@ -134,7 +161,7 @@ size_t xsec_size(xsec_t* cross_section);
  * @param cross_section Pointer to the `xsec` structure.
  * @return The allocated capacity of the structure, or 0 if the structure is NULL.
  */
-size_t xsec_alloc(xsec_t* cross_section);
+size_t xsec_alloc(const xsec_t* cross_section);
 // --------------------------------------------------------------------------------
 
 /**
@@ -151,8 +178,27 @@ size_t xsec_alloc(xsec_t* cross_section);
 void free_xsec(xsec_t* cross_section);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Frees the memory allocated for an xsec_t structure and its associated data.
+ *
+ * @param cross_section A double pointer to an xsec_t structure to be freed.
+ *                      The function sets the pointer to NULL after freeing the memory.
+ *
+ * @note This function is intended to be used as a cleanup function with GCC or Clang's
+ *       __attribute__((cleanup)) mechanism.
+ */
 void _free_xsec(xsec_t** cross_section); 
+// --------------------------------------------------------------------------------
 
+/**
+ * @brief Defines a macro for associating a cleanup function (_free_xsec) with
+ *        an xsec_t pointer variable in GCC or Clang.
+ *
+ * @note When this macro is used to declare a variable, the specified cleanup
+ *       function is automatically called when the variable goes out of scope.
+ *
+ * @note This macro is compiler-specific and works only with GCC or Clang.
+ */ 
 #if defined(__GNUC__) || defined(__clang__)
     #define XSEC_GBC __attribute__((cleanup(_free_xsec)))
 #endif

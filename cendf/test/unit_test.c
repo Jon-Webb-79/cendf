@@ -42,6 +42,13 @@ const struct CMUnitTest test_data_structures[] = {
     cmocka_unit_test(test_xsec_resize),
     cmocka_unit_test(test_xsec_size_alloc),
     cmocka_unit_test(test_xsec_free_data),
+    cmocka_unit_test(test_interp_xsec_exact_match),
+    cmocka_unit_test(test_interp_xsec_interpolation),
+    cmocka_unit_test(test_interp_xsec_below_range),
+    cmocka_unit_test(test_interp_xsec_above_range),
+    cmocka_unit_test(test_interp_xsec_single_point),
+    cmocka_unit_test(test_interp_xsec_null_pointer),
+    cmocka_unit_test(test_interp_xsec_bounds),
     cmocka_unit_test(test_init_string),
     cmocka_unit_test(test_init_string_strcmp),
     #if defined(__GNUC__) || defined(__clang__)
