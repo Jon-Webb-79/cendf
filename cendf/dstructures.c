@@ -23,6 +23,8 @@
 const float LOAD_FACTOR_THRESHOLD = 0.7;
 static const size_t XSEC_THRESHOLD = 1 * 1024 * 1024;  // 1 MB
 static const size_t XSEC_FIXED_AMOUNT = 1 * 1024 * 1024;  // 1 MB
+                                                          
+static const size_t hashSize = 3;  //  Size fo hash map initi functions
 // ================================================================================
 // ================================================================================
 // XSEC_T DATA TYPE 
@@ -826,6 +828,261 @@ vector_t* copy_vector(vector_t* vec) {
         push_back_vector(new_vec, get_vector(vec, i));
     }
     return new_vec;
+}
+// ================================================================================
+// ================================================================================ 
+// DICTIONARY IMPLEMENTATION
+
+typedef struct dictNode {
+    char* key;
+    float value;
+    struct dictNode* next;
+} dictNode;
+// --------------------------------------------------------------------------------
+
+struct dict_t {
+    dictNode* keyValues;
+    size_t hash_size;
+    size_t len;
+    size_t alloc;
+};
+// --------------------------------------------------------------------------------
+
+static size_t hash_function(const char* key) {
+    size_t hash = 5381; // Initialize hash with a prime number
+    int c;
+
+    while ((c = *key++)) { // Iterate over each character in the key
+        hash = ((hash << 5) + hash) + c; // hash * 33 + c
+    }
+
+    return hash; // Return the computed hash value
+}
+// --------------------------------------------------------------------------------
+
+static bool resize_dict(dict_t* dict, size_t new_size) {
+    // Allocate a new array of dictNode structs
+    dictNode* new_table = malloc(new_size * sizeof(dictNode));
+    if (!new_table) {
+        perror("Failed to allocate memory for resized hash table");
+        return false;
+    }
+
+    // Initialize the new table
+    for (size_t i = 0; i < new_size; i++) {
+        new_table[i].key = NULL;  // Empty bucket
+        new_table[i].value = 0;  // Default value
+        new_table[i].next = NULL;
+    }
+
+    // Rehash existing key-value pairs into the new table
+    for (size_t i = 0; i < dict->alloc; i++) {
+        dictNode* current = dict->keyValues[i].next; // Traverse the chain in the old table
+        while (current) {
+            dictNode* next = current->next; // Save the next node
+            size_t new_index = hash_function(current->key) % new_size;
+
+            // Insert into the new table
+            current->next = new_table[new_index].next;
+            new_table[new_index].next = current;
+
+            current = next; // Move to the next node in the chain
+        }
+    }
+
+    // Free the old table
+    free(dict->keyValues);
+
+    // Update the dictionary's fields
+    dict->keyValues = new_table; // Assign the new array
+    dict->alloc = new_size;      // Update allocated size
+
+    return true;
+}
+// --------------------------------------------------------------------------------
+
+dict_t* init_dict() {
+    dict_t* hashPtr = malloc(sizeof(*hashPtr));
+    if (!hashPtr) {
+        errno = ENOMEM;
+        fprintf(stderr, "Failure to allocate dict_t struct in init_dict()\n");
+        return NULL;
+    }
+    dictNode* arrPtr = malloc(hashSize * sizeof(*arrPtr));
+    if (!arrPtr) {
+        errno = ENOMEM;
+        fprintf(stderr, "Failure to allocate dictNode in init_dict()\n");
+        free(hashPtr);
+        return NULL;
+    }
+
+    // Initialize each index in the keyValues array with a designated head node
+    for (size_t i = 0; i < hashSize; i++) {
+        arrPtr[i].key = NULL; // Set the head node's key pointer to NULL
+        arrPtr[i].next = NULL; // Set the head node's next pointer to NULL
+        arrPtr[i].value = 0; // Initialize value
+    }
+    
+    hashPtr->keyValues = arrPtr;
+    hashPtr->hash_size = 0;
+    hashPtr->len = 0;
+    hashPtr->alloc = hashSize;
+    return hashPtr;
+}
+// --------------------------------------------------------------------------------
+
+bool insert_dict(dict_t* dict, char* key, float value) {
+    // Check if resizing is needed
+    if (dict->hash_size >= dict->alloc * LOAD_FACTOR_THRESHOLD) {
+        size_t new_alloc = dict->alloc < XSEC_THRESHOLD ? dict->alloc * 2 : dict->alloc + XSEC_FIXED_AMOUNT;
+        resize_dict(dict, new_alloc);
+    } 
+    
+    size_t index = hash_function(key) % dict->alloc;
+
+    // Check if the key already exists in the hash table
+    dictNode* current = dict->keyValues[index].next;
+    while (current) {
+        if (strcmp(current->key, key) == 0) {
+            // Key already exists, return control to the calling program
+            errno = EINVAL;
+            fprintf(stderr, "Key already exists in dictionary, exiting insert_dict()\n");
+            return false;
+        }
+        current = current->next;
+    }
+
+    // Allocate memory for the key
+    char* new_key = malloc((strlen(key) + 1) * sizeof(char));
+    if (!new_key) {
+        errno = ENOMEM;
+        fprintf(stderr, "Failed to allocate string for dictionary key word, exiting insert_dict()\n");
+        free(current->key);
+        return false;
+    }
+    strcpy(new_key, key); // Copy the key to the dynamically allocated memory
+    
+    // Insert the new key-value pair into the hash table
+    dictNode* new_node = malloc(sizeof(*new_node));
+    if (!new_node) {
+        // Handle memory allocation failure
+        free(new_key); // Free the allocated key memory
+        free(current->key);
+        return false;
+    }
+    new_node->key = new_key;
+    new_node->value = value;
+    new_node->next = dict->keyValues[index].next;
+    dict->keyValues[index].next = new_node;
+    
+    dict->hash_size++; // Increment the number of key-value pairs
+    
+    // Update the size if the index was previously empty
+    if (dict->keyValues[index].next == new_node) {
+        dict->len++;
+    }
+    return true;
+}
+// --------------------------------------------------------------------------------
+
+float pop_dict(dict_t* dict, char* key) {
+    size_t index = hash_function(key) % dict->alloc;
+
+    // Traverse the linked list at the index
+    dictNode* prev = &dict->keyValues[index];
+    dictNode* current = prev->next;
+    while (current) {
+        if (strcmp(current->key, key) == 0) {
+            // Key found, unlink the node from the linked list
+            prev->next = current->next;
+            
+            // Retrieve the value associated with the key
+            float value = current->value;
+
+            // Free the memory allocated for the key and the node
+            free(current->key);
+            free(current);
+
+            // Decrement the number of key-value pairs in the hash table
+            dict->hash_size--;
+
+            // Return the value associated with the key
+            return value;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    return FLT_MAX;
+}
+// --------------------------------------------------------------------------------
+
+const float get_dict_value(const dict_t* table, char* key) {
+    size_t index = hash_function(key) % table->alloc;
+    // Traverse the linked list at the index
+    dictNode* current = table->keyValues[index].next;
+    while (current) {
+        if (strcmp(current->key, key) == 0) {
+            // Key found, return the corresponding value
+            return current->value;
+        }
+        current = current->next;
+    }
+
+    return FLT_MAX; 
+}
+// --------------------------------------------------------------------------------
+
+void free_dict(dict_t* dict) {
+    for (size_t i = 0; i < dict->alloc; i++) {
+        dictNode* current = dict->keyValues[i].next; // Start from the head of the list
+        dictNode* next = NULL;
+        while (current) {      
+            next = current->next;
+            free(current->key);
+            free(current);
+            current = next;
+        }
+    }
+    free(dict->keyValues); 
+    free(dict); 
+}
+// --------------------------------------------------------------------------------
+
+void _free_dict(dict_t **dict) {
+    if (dict && *dict) {
+        free_dict(*dict);
+    }
+}
+// --------------------------------------------------------------------------------
+
+void update_dict(dict_t* dict, char* key, float value) {
+    size_t index = hash_function(key) % dict->alloc;
+    dictNode* current = dict->keyValues[index].next;
+    while (current) {
+        if (strcmp(current->key, key) == 0) {
+            current->value = value;
+            return;
+        }
+        current = current->next;
+    }
+    // If key is not found, no action is taken
+    return;
+}
+// --------------------------------------------------------------------------------
+
+const size_t dict_size(const dict_t* dict) {
+    return dict->len;
+}
+// --------------------------------------------------------------------------------
+
+const size_t dict_alloc(const dict_t* dict) {
+    return dict->alloc;
+}
+// --------------------------------------------------------------------------------
+
+const size_t dict_hash_size(const dict_t* dict) {
+    return dict->hash_size;
 }
 // ================================================================================
 // ================================================================================

@@ -588,6 +588,147 @@ void _free_vector(vector_t** vec);
  */
 vector_t* copy_vector(vector_t* vec);
 // ================================================================================
+// ================================================================================ 
+// DICTIONARY PROTOTYPES
+
+/**
+ * @typedef dict_t
+ * @brief Opaque struct representing a dictionary.
+ *
+ * This structure encapsulates a hash table that maps string keys to float values.
+ * The details of the struct are hidden from the user and managed internally.
+ */
+typedef struct dict_t dict_t;
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Initializes a new dictionary.
+ *
+ * Allocates and initializes a dictionary object with a default size for the hash table.
+ *
+ * @return A pointer to the newly created dictionary, or NULL if allocation fails.
+ */
+dict_t* init_dict();
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Inserts a key-value pair into the dictionary.
+ *
+ * Adds a new key-value pair to the dictionary. If the key already exists, the function
+ * does nothing and returns false. If the dictionary's load factor exceeds a threshold,
+ * it automatically resizes.
+ *
+ * @param dict Pointer to the dictionary.
+ * @param key The key to insert.
+ * @param value The value associated with the key.
+ * @return true if the key-value pair was inserted successfully, false otherwise.
+ */
+bool insert_dict(dict_t* dict, char* key, float value);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Removes a key-value pair from the dictionary.
+ *
+ * Finds the specified key in the dictionary, removes the associated key-value pair,
+ * and returns the value.
+ *
+ * @param dict Pointer to the dictionary.
+ * @param key The key to remove.
+ * @return The value associated with the key if it was found and removed; FLT_MAX otherwise.
+ */
+float pop_dict(dict_t* dict,  char* key);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Retrieves the value associated with a key.
+ *
+ * Searches the dictionary for the specified key and returns the corresponding value.
+ *
+ * @param dict Pointer to the dictionary.
+ * @param key The key to search for.
+ * @return The value associated with the key, or FLT_MAX if the key is not found.
+ */
+const float get_dict_value(const dict_t* dict, char* key);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Frees the memory associated with the dictionary.
+ *
+ * Releases all memory allocated for the dictionary, including all key-value pairs.
+ *
+ * @param dict Pointer to the dictionary to free.
+ */
+void free_dict(dict_t* dict);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Safely frees a dictionary and sets the pointer to NULL.
+ *
+ * A wrapper around `free_dict` that ensures the dictionary pointer is also set to NULL
+ * after being freed. Useful for preventing dangling pointers.
+ *
+ * @param dict Pointer to the dictionary pointer to free.
+ */
+void _free_dict(dict_t** dict);
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined (__clang__)
+    /**
+     * @macro DICT_GBC
+     * @brief A macro for enabling automatic cleanup of dict_t objects.
+     *
+     * This macro uses the cleanup attribute to automatically call `_free_vector`
+     * when the scope ends, ensuring proper memory management.
+     */
+    #define DICT_GBC __attribute__((cleanup(_free_dict)))
+#endif
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Updates the value associated with a key in the dictionary.
+ *
+ * Searches for the specified key in the dictionary and updates its value.
+ * If the key does not exist, the function takes no action.
+ *
+ * @param dict Pointer to the dictionary.
+ * @param key The key to update.
+ * @param value The new value to associate with the key.
+ */
+void update_dict(dict_t* dict, char* key, float value);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Gets the number of non-empty buckets in the dictionary.
+ *
+ * Returns the total number of buckets in the hash table that contain at least one key-value pair.
+ *
+ * @param dict Pointer to the dictionary.
+ * @return The number of non-empty buckets.
+ */
+const size_t dict_size(const dict_t* dict);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Gets the total capacity of the dictionary.
+ *
+ * Returns the total number of buckets currently allocated in the hash table.
+ *
+ * @param dict Pointer to the dictionary.
+ * @return The total number of buckets in the dictionary.
+ */
+const size_t dict_alloc(const dict_t* dict);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Gets the total number of key-value pairs in the dictionary.
+ *
+ * Returns the total number of key-value pairs currently stored in the dictionary.
+ *
+ * @param dict Pointer to the dictionary.
+ * @return The number of key-value pairs.
+ */
+const size_t dict_hash_size(const dict_t* dict);
+// ================================================================================
 // ================================================================================
 
 /**
@@ -601,6 +742,7 @@ vector_t* copy_vector(vector_t* vec);
  *  - `xsec_t*`: Calls `xsec_size`
  *  - `string_t*`: Calls `string_size`
  *  - `vector_t*`: Calls `vector_size`
+ *  - `dict_t*`: Calls `dict_size` 
  *
  * @param d_struct A pointer to the data structure (`xsec_t*`, `string_t*`, or `vector_t*`).
  * @return The size of the data structure, as returned by the corresponding function.
@@ -614,7 +756,8 @@ vector_t* copy_vector(vector_t* vec);
 #define size(d_struct) _Generic((d_struct), \
     xsec_t*: xsec_size, \
     string_t*: string_size, \
-    vector_t*: vector_size) (d_struct)
+    vector_t*: vector_size, \
+    dict_t*: dict_size) (d_struct)
 // --------------------------------------------------------------------------------
 
 /**
@@ -628,6 +771,7 @@ vector_t* copy_vector(vector_t* vec);
  *  - `xsec_t*`: Calls `xsec_alloc`
  *  - `string_t*`: Calls `string_alloc`
  *  - `vector_t*`: Calls `vector_alloc`
+ *  - `dict_t*`: Calls `dict_alloc`
  *
  * @param d_struct A pointer to the data structure (`xsec_t*`, `string_t*`, or `vector_t*`).
  * @return The allocated capacity of the data structure, as returned by the corresponding function.
@@ -641,7 +785,8 @@ vector_t* copy_vector(vector_t* vec);
 #define alloc(d_struct) _Generic((d_struct), \
     xsec_t*: xsec_alloc, \
     string_t*: string_alloc, \
-    vector_t*: vector_alloc) (d_struct)
+    vector_t*: vector_alloc, \
+    dict_t*: dict_alloc) (d_struct)
 // --------------------------------------------------------------------------------
 
 /**
@@ -656,6 +801,7 @@ vector_t* copy_vector(vector_t* vec);
  *  - `xsec_t*`: Calls `free_xsec`
  *  - `string_t*`: Calls `free_string`
  *  - `vector_t*`: Calls `free_vector`
+ *  - `dict_t*`: Calls `free_dict`
  *  - Default: Calls `free`
  *
  * @param d_struct A pointer to the data structure (`xsec_t*`, `string_t*`, `vector_t*`, or other pointer).
@@ -671,6 +817,7 @@ vector_t* copy_vector(vector_t* vec);
     xsec_t*: free_xsec, \
     string_t*: free_string, \
     vector_t*: free_vector, \
+    dict_t*: free_dict, \
     default: free) (d_struct)
 // ================================================================================
 // ================================================================================ 
