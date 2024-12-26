@@ -1004,7 +1004,7 @@ float pop_dict(dict_t* dict, char* key) {
             free(current);
 
             // Decrement the number of key-value pairs in the hash table
-            dict->hash_size--;
+            dict->len--;
 
             // Return the value associated with the key
             return value;
@@ -1028,7 +1028,7 @@ const float get_dict_value(const dict_t* table, char* key) {
         }
         current = current->next;
     }
-
+    fprintf(stderr, "Key: '%s' does not exist in dictionary\n", key);
     return FLT_MAX; 
 }
 // --------------------------------------------------------------------------------
@@ -1056,18 +1056,19 @@ void _free_dict(dict_t **dict) {
 }
 // --------------------------------------------------------------------------------
 
-void update_dict(dict_t* dict, char* key, float value) {
+bool update_dict(dict_t* dict, char* key, float value) {
     size_t index = hash_function(key) % dict->alloc;
     dictNode* current = dict->keyValues[index].next;
     while (current) {
         if (strcmp(current->key, key) == 0) {
             current->value = value;
-            return;
+            return true;
         }
         current = current->next;
     }
+    fprintf(stderr, "Key '%s' does not exist in dictionary\n", key);
     // If key is not found, no action is taken
-    return;
+    return false;
 }
 // --------------------------------------------------------------------------------
 

@@ -220,7 +220,28 @@ void test_vector_free_data(void **state);
 /*
  * Test the ability to copy vector contents to another vector
  */
-void test_copy_vector(void **date);
+void test_copy_vector(void **state);
+// ================================================================================ 
+// ================================================================================ 
+
+void test_init_dictionary(void **state);
+// --------------------------------------------------------------------------------
+
+void test_insert_dictionary(void **state);
+// --------------------------------------------------------------------------------
+
+void test_pop_dictionary(void **state);
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined(__clang__)
+    void test_free_dictionary_gbc(void **state);
+#endif
+// --------------------------------------------------------------------------------
+
+void test_update_dictionary(void **state); 
+// --------------------------------------------------------------------------------
+
+void test_update_dictionary_error(void **state);
 // ================================================================================
 // ================================================================================
 #endif /* test_dstructures_H */

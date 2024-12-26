@@ -694,7 +694,7 @@ void _free_dict(dict_t** dict);
  * @param key The key to update.
  * @param value The new value to associate with the key.
  */
-void update_dict(dict_t* dict, char* key, float value);
+bool update_dict(dict_t* dict, char* key, float value);
 // --------------------------------------------------------------------------------
 
 /**

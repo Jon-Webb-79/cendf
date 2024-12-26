@@ -72,7 +72,13 @@ const struct CMUnitTest test_data_structures[] = {
     cmocka_unit_test(test_pop_front_vector), 
     cmocka_unit_test(test_pop_any_vector),
     cmocka_unit_test(test_vector_free_data),
-    cmocka_unit_test(test_copy_vector)
+    cmocka_unit_test(test_copy_vector),
+    cmocka_unit_test(test_init_dictionary),
+    cmocka_unit_test(test_insert_dictionary),
+    cmocka_unit_test(test_pop_dictionary),
+    cmocka_unit_test(test_free_dictionary_gbc),
+    cmocka_unit_test(test_update_dictionary),
+    cmocka_unit_test(test_update_dictionary_error),
 };
 // ================================================================================ 
 // ================================================================================ 

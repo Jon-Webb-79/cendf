@@ -13,6 +13,8 @@
 // Include modules here
 
 #include "test_dstructures.h"
+
+#include <float.h>
 // ================================================================================
 // ================================================================================ 
 
@@ -627,6 +629,123 @@ void test_copy_vector(void **state) {
     }
     free_vector(vec);
     free_vector(new_vec);
+}
+// ================================================================================
+// ================================================================================
+// TEST DICTIONARY 
+
+void test_init_dictionary(void **state) {
+    dict_t* dict = init_dict();
+    assert_int_equal(size(dict), 0);
+    assert_int_equal(alloc(dict), 3);
+    assert_int_equal(dict_hash_size(dict), 0);
+    free_data(dict);
+}
+// --------------------------------------------------------------------------------
+
+void test_insert_dictionary(void **state) {
+    dict_t* dict = init_dict();
+    insert_dict(dict, "One", 1.0);
+    insert_dict(dict, "Two", 2.0);
+    insert_dict(dict, "Three", 3.0);
+    assert_int_equal(size(dict), 3);
+    assert_int_equal(alloc(dict), 3);
+    assert_int_equal(dict_hash_size(dict), 3);
+    assert_float_equal(1.0, get_dict_value(dict, "One"), 1.0e-6);
+    assert_float_equal(2.0, get_dict_value(dict, "Two"), 1.0e-6);
+    assert_float_equal(3.0, get_dict_value(dict, "Three"), 1.0e-6);
+    free_data(dict);
+}
+// --------------------------------------------------------------------------------
+
+void test_pop_dictionary(void **state) {
+    dict_t* dict = init_dict();
+    insert_dict(dict, "One", 1.0);
+    insert_dict(dict, "Two", 2.0);
+    insert_dict(dict, "Three", 3.0);
+    float value = pop_dict(dict, "Three");
+    assert_float_equal(3.0, value, 1.0e-3);
+    assert_int_equal(size(dict), 2);
+    assert_int_equal(alloc(dict), 3);
+    assert_int_equal(dict_hash_size(dict), 3);
+    assert_float_equal(1.0, get_dict_value(dict, "One"), 1.0e-6);
+    assert_float_equal(2.0, get_dict_value(dict, "Two"), 1.0e-6);
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    assert_float_equal(FLT_MAX, get_dict_value(dict, "Three"), 1.0e-6);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr;
+    free_data(dict);
+}
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined(__clang__)
+    void test_free_dictionary_gbc(void **state) {
+        dict_t* dict DICT_GBC = init_dict();
+        insert_dict(dict, "One", 1.0);
+        insert_dict(dict, "Two", 2.0);
+        insert_dict(dict, "Three", 3.0);
+        assert_int_equal(size(dict), 3);
+        assert_int_equal(alloc(dict), 3);
+        assert_int_equal(dict_hash_size(dict), 3);
+        assert_float_equal(1.0, get_dict_value(dict, "One"), 1.0e-6);
+        assert_float_equal(2.0, get_dict_value(dict, "Two"), 1.0e-6);
+        assert_float_equal(3.0, get_dict_value(dict, "Three"), 1.0e-6);
+    }
+#endif
+// --------------------------------------------------------------------------------
+
+void test_update_dictionary(void **state) {
+    dict_t* dict = init_dict();
+    insert_dict(dict, "One", 1.0);
+    insert_dict(dict, "Two", 2.0);
+    insert_dict(dict, "Three", 3.0);
+    update_dict(dict, "Three", 4.0);
+    assert_int_equal(size(dict), 3);
+    assert_int_equal(alloc(dict), 3);
+    assert_int_equal(dict_hash_size(dict), 3);
+    assert_float_equal(1.0, get_dict_value(dict, "One"), 1.0e-6);
+    assert_float_equal(2.0, get_dict_value(dict, "Two"), 1.0e-6);
+    assert_float_equal(4.0, get_dict_value(dict, "Three"), 1.0e-6);
+    free_data(dict);
+}
+// --------------------------------------------------------------------------------
+
+void test_update_dictionary_error(void **state) {
+    dict_t* dict = init_dict();
+    insert_dict(dict, "One", 1.0);
+    insert_dict(dict, "Two", 2.0);
+    insert_dict(dict, "Three", 3.0);
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    bool test = update_dict(dict, "Five", 4.0);
+    assert_false(test);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr;
+
+    assert_int_equal(size(dict), 3);
+    assert_int_equal(alloc(dict), 3);
+    assert_int_equal(dict_hash_size(dict), 3);
+    assert_float_equal(1.0, get_dict_value(dict, "One"), 1.0e-6);
+    assert_float_equal(2.0, get_dict_value(dict, "Two"), 1.0e-6);
+    assert_float_equal(3.0, get_dict_value(dict, "Three"), 1.0e-6);
+    free_data(dict);
 }
 // ================================================================================
 // ================================================================================ 
