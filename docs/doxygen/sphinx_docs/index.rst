@@ -11,7 +11,10 @@ repository for nuclear reaction data, containing comprehensive information
 about nuclear cross sections, decay data, and related nuclear physics 
 parameters. It serves as a standardized format and database that is 
 essential for nuclear science, engineering, and applications ranging 
-from reactor design to medical physics.
+from reactor design to medical physics.  The ENDF/A file system contains raw 
+data collected from experiementation, and the ENDF/B file system contains 
+reduced data as applicable for engineering calculations.  This code repository 
+is developed to read data from the ENDF/B file system.
 
 The `ENDF <https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf>`_ 
 database includes detailed information about how neutrons, 
@@ -57,7 +60,8 @@ C++ code as well.
    :maxdepth: 2
    :caption: Contents:
 
-   Cross Section <XSec>
+   Cross Section Data Type <XSec>
+   Generic Macros <Macros>
 
 Indices and tables
 ==================

@@ -106,7 +106,7 @@ Code Examples
 
     Deallocates all memory associated with the structure. This function 
     can be used directly to free xsec_t data from memory, or the developer 
-    can also use the ``free_data`` macro as a generic macro that can be used 
+    can also use the :ref:`free_data <free-data-macro>` macro as a generic macro that can be used 
     to free memory for any data type in this code base.
 
     :param cross_section: Pointer to structure to be freed
@@ -322,9 +322,11 @@ Utility Functions
 The following functions can be used to access data within the ``xsec_t`` data 
 structure.
 
+.. _xsec-size-func:
+
 .. c:function:: size_t xsec_size(const xsec_t* cross_section)
 
-    Returns the number of elements in the structure.  The generic ``size``
+    Returns the number of elements in the structure.  The generic :ref:`size <size-macro>`
     macro can also be used in place of this function.
 
     :param cross_section: Target structure
@@ -358,9 +360,11 @@ Example Code
 
    xsec_t populated length: 4
 
+.. _xsec-alloc-func:
+
 .. c:function:: size_t xsec_alloc(const xsec_t* cross_section)
 
-    Returns the allocated capacity of the structure.  The generic ``alloc``
+    Returns the allocated capacity of the structure.  The generic :ref:`alloc <alloc-macro>`
     macro can also be used in place of this function.
 
     :param cross_section: Target structure
