@@ -233,7 +233,7 @@ size_t xsec_size(const xsec_t* cross_section) {
     if (!cross_section || !cross_section->xs || !cross_section->energy) {
         errno = EINVAL;
         fprintf(stderr, "Invalid cross section passed to xsec_size\n");
-        return -1;
+        return 0;
     }
     return cross_section->len;
 }
@@ -243,7 +243,7 @@ size_t xsec_alloc(const xsec_t* cross_section) {
     if (!cross_section || !cross_section->xs || !cross_section->energy) {
         errno = EINVAL;
         fprintf(stderr, "Invalid cross section passed to xsec_alloc\n");
-        return -1;
+        return 0;
     }
     return cross_section->alloc;
 }
