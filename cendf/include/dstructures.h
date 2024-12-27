@@ -118,6 +118,26 @@ const xsecData get_xsec_data(const xsec_t* cross_section, size_t index);
 // --------------------------------------------------------------------------------
 
 /**
+ * @function get_xsec_xsArray
+ * @brief Retrieves a const pointer to the xs array within a xsec_t struct
+ *
+ * @param cross_section Pointer to the `xsec_t` structure.
+ * @return A const `float` pointer to the xs array, or NULL if array is not populated
+ */
+const float* get_xsec_xsArray(const xsec_t* xsec);
+// --------------------------------------------------------------------------------
+
+/**
+ * @function get_xsec_enArray
+ * @brief Retrieves a const pointer to the energy array within a xsec_t struct
+ *
+ * @param cross_section Pointer to the `xsec_t` structure.
+ * @return A const `float` pointer to the energy array, or NULL if array is not populated
+ */
+const float* get_xsec_enArray(const xsec_t* xsec);
+// --------------------------------------------------------------------------------
+
+/**
  * @brief Interpolates or retrieves the cross-section value for a given energy
  *        from an xsec_t structure.
  *

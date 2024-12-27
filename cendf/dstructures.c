@@ -149,6 +149,26 @@ const float get_xsec_energy(const xsec_t* cross_section, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
+const float* get_xsec_xsArray(const xsec_t* xsec) {
+    if (!xsec || !xsec->xs) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to xesc_t or arrays in get_xsec_xsArray\n");
+        return NULL;
+    }
+    return xsec->xs;
+}
+// --------------------------------------------------------------------------------
+
+const float* get_xsec_enArray(const xsec_t* xsec) {
+    if (!xsec || !xsec->xs) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to xesc_t or arrays in get_xsec_xsArray\n");
+        return NULL;
+    }
+    return xsec->energy;
+}
+// --------------------------------------------------------------------------------
+
 const xsecData get_xsec_data(const xsec_t* cross_section, size_t index) {
     if (!validate_xsec(cross_section, index)) {
         return (xsecData){ .xs = -1.f, .energy = -1.f };  // Or define an invalid xsec_data value

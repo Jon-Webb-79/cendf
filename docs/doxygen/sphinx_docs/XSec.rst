@@ -319,7 +319,7 @@ Expected output:
 
 Utility Functions
 -----------------
-The following functions can be used to access data within the ``size_t`` data 
+The following functions can be used to access data within the ``xsec_t`` data 
 structure.
 
 .. c:function:: size_t xsec_size(const xsec_t* cross_section)
@@ -391,6 +391,52 @@ Example Code
 .. code-block:: bash 
 
    xsec_t allocated length: 10
+
+.. c:function:: const float* get_xsec_xsArray(const xsec_t* xsec)
+
+    Retrieves a pointer to the internal cross-section array. The returned array 
+    is read-only to maintain data encapsulation.
+
+    :param xsec: Source structure
+    :return: Const pointer to cross-section array, or NULL on failure
+    :errno: ``EINVAL`` if invalid structure pointer or NULL array
+
+    .. warning::
+        The returned pointer is only valid for the lifetime of the xsec_t structure. 
+        Do not store this pointer beyond the lifetime of the structure.
+
+.. c:function:: const float* get_xsec_enArray(const xsec_t* xsec)
+
+    Retrieves a pointer to the internal energy array. The returned array 
+    is read-only to maintain data encapsulation.
+
+    :param xsec: Source structure
+    :return: Const pointer to energy array, or NULL on failure
+    :errno: ``EINVAL`` if invalid structure pointer or NULL array
+
+    .. warning::
+        The returned pointer is only valid for the lifetime of the xsec_t structure. 
+        Do not store this pointer beyond the lifetime of the structure.
+
+    Example usage of array access functions:
+
+    .. code-block:: c
+
+        void print_arrays(const xsec_t* xs) {
+            const float* cross_sections = get_xsec_xsArray(xs);
+            const float* energies = get_xsec_enArray(xs);
+            
+            if (!cross_sections || !energies) {
+                fprintf(stderr, "Failed to get arrays\n");
+                return;
+            }
+            
+            size_t size = xsec_size(xs);
+            for (size_t i = 0; i < size; i++) {
+                printf("E: %f MeV, XS: %f barns\n", 
+                       energies[i], cross_sections[i]);
+            }
+        }
 
 Implementation Details
 ======================
