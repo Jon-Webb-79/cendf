@@ -541,7 +541,7 @@ float pop_any_vector(vector_t* vec, size_t index);
  * @param index The index of the element to retrieve.
  * @return The float value at the specified index, or FLT_MIN on error. Sets errno to EINVAL or ERANGE.
  */
-float get_vector(vector_t* vec, size_t index);
+const float get_vector(const vector_t* vec, size_t index);
 // --------------------------------------------------------------------------------
 
 /**
@@ -551,7 +551,7 @@ float get_vector(vector_t* vec, size_t index);
  * @param vec A pointer to the vector_t object.
  * @return The number of elements in the vector, or 0 if the vector is NULL.
  */
-const size_t vector_size(vector_t* vec);
+const size_t vector_size(const vector_t* vec);
 // --------------------------------------------------------------------------------
 
 /**
@@ -561,7 +561,7 @@ const size_t vector_size(vector_t* vec);
  * @param vec A pointer to the vector_t object.
  * @return The allocated capacity of the vector, or 0 if the vector is NULL.
  */
-const size_t vector_alloc(vector_t* vec);
+const size_t vector_alloc(const vector_t* vec);
 // --------------------------------------------------------------------------------
 
 /**
@@ -599,6 +599,7 @@ void _free_vector(vector_t** vec);
     #define VECTOR_GBC __attribute__((cleanup(_free_vector)))
 #endif
 // --------------------------------------------------------------------------------
+
 /**
  * @function copy_vector
  * @brief Copies the contents of one vector into another
@@ -606,7 +607,17 @@ void _free_vector(vector_t** vec);
  * @param vec A pointer to a vector_t data type
  * @return A pointer to a dynamically allocated vector_t object
  */
-vector_t* copy_vector(vector_t* vec);
+vector_t* copy_vector(const vector_t* vec);
+// --------------------------------------------------------------------------------
+
+/**
+ * @function get_vecArray
+ * @brief Provides a raw pointer to the float array within a vector_t data type
+ *
+ * @param vec A pointer to a vector_t data type
+ * @return A pointer to a dynamically allocated float array
+ */
+const float* get_vecArray(const vector_t* vec);
 // ================================================================================
 // ================================================================================ 
 // DICTIONARY PROTOTYPES

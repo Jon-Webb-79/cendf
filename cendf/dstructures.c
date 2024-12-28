@@ -775,7 +775,7 @@ float pop_any_vector(vector_t* vec, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
-float get_vector(vector_t* vec, size_t index) {
+const float get_vector(const vector_t* vec, size_t index) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
@@ -790,7 +790,7 @@ float get_vector(vector_t* vec, size_t index) {
 }
 // --------------------------------------------------------------------------------
 
-const size_t vector_size(vector_t* vec) {
+const size_t vector_size(const vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
@@ -800,7 +800,7 @@ const size_t vector_size(vector_t* vec) {
 }
 // --------------------------------------------------------------------------------
 
-const size_t vector_alloc(vector_t* vec) {
+const size_t vector_alloc(const vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
@@ -836,7 +836,7 @@ void _free_vector(vector_t** vec) {
 }
 // --------------------------------------------------------------------------------
 
-vector_t* copy_vector(vector_t* vec) {
+vector_t* copy_vector(const vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
@@ -848,6 +848,16 @@ vector_t* copy_vector(vector_t* vec) {
         push_back_vector(new_vec, get_vector(vec, i));
     }
     return new_vec;
+}
+// --------------------------------------------------------------------------------
+
+const float* get_vecArray(const vector_t* vec) {
+   if (!vec || !vec->data) {
+        errno = EINVAL;
+        fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
+        return NULL;
+    }
+    return vec->data; 
 }
 // ================================================================================
 // ================================================================================ 

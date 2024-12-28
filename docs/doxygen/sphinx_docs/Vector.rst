@@ -416,7 +416,7 @@ Code Example
 Access Operations
 -----------------
 
-.. c:function:: float get_vector(vector_t* vec, size_t index)
+.. c:function:: const float get_vector(const vector_t* vec, size_t index)
 
    Retrieves value at specified index.
 
@@ -427,14 +427,44 @@ Access Operations
        - ``EINVAL`` if vector is NULL
        - ``ERANGE`` if index out of bounds
 
+Code Example 
+
+.. code-block:: c
+
+   #include "dstructures.h"
+   #include <stdio.h>  // For printf
+   #include <stdlib.h> // For EXIT FAILURE and EXIT_SUCCESS
+
+   int main() {
+       // Initialize vector_t as if code is compiled in gcc or clang
+       vector_t* vec VECTOR_GBC = init_xsec(5);
+
+       float temp[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+       for (size_t i = 0; i < 5; i++) {
+           if (!push_back_vector(vec, temp[i])) {
+               return EXIT_FAILURE;
+           }
+       }
+
+       float val = get_vector(vec, 3);
+       printf("Value at index 3 is: %d\n", val); 
+       // If not compiled in gcc or clang use free_data(vec)
+       return EXIT_SUCCESS;
+   }
+
+.. code-block:: bash 
+
+   Value at index 3 is: 4.0000
+
 Utility Functions
 -----------------
 
 .. _vec-size-func:
 
-.. c:function:: size_t vector_size(vector_t* vec)
+.. c:function:: const size_t vector_size(const vector_t* vec)
 
-   Returns number of elements in vector.
+   Returns number of elements in vector. The generic :ref:`size <size-macro>`
+   macro can also be used in place of this function. 
 
    :param vec: Target vector
    :return: Number of elements, or 0 on failure
@@ -442,15 +472,49 @@ Utility Functions
 
 .. _vec-alloc-func:
 
-.. c:function:: size_t vector_alloc(vector_t* vec)
+.. c:function:: const size_t vector_alloc(const vector_t* vec)
 
-   Returns allocated capacity of vector.
+   Returns allocated capacity of vector. The generic :ref:`alloc <alloc-macro>`
+   macro can also be used in place of this function. 
 
    :param vec: Target vector
    :return: Allocated capacity, or 0 on failure
    :errno: ``EINVAL`` if invalid vector pointer
 
-.. c:function:: vector_t* copy_vector(vector_t* vec)
+Code Example 
+
+.. code-block:: c
+
+   #include "dstructures.h"
+   #include <stdio.h>  // For printf
+   #include <stdlib.h> // For EXIT FAILURE and EXIT_SUCCESS
+
+   int main() {
+       // Initialize vector_t as if code is compiled in gcc or clang
+       vector_t* vec VECTOR_GBC = init_xsec(10);
+
+       float temp[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+       for (size_t i = 0; i < 5; i++) {
+           if (!push_back_vector(vec, temp[i])) {
+               return EXIT_FAILURE;
+           }
+       }
+      
+       // Can use alloc(vec) as a generic macro
+       printf("Vector allocated length is: %ld\n", vector_alloc(vec));
+       // Can use size(vec) as a generic macro
+       printf("Vector populated length is: %ld\n", vector_size(vec));
+
+       // If not compiled in gcc or clang use free_data(vec)
+       return EXIT_SUCCESS;
+   }
+
+.. code-block:: bash 
+
+   Vector allocated length is: 10
+   Vector populated length is: 5
+
+.. c:function:: vector_t* copy_vector(const vector_t* vec)
 
    Creates a deep copy of the vector.
 
@@ -459,6 +523,92 @@ Utility Functions
    :errno: 
        - ``EINVAL`` if invalid vector pointer
        - ``ENOMEM`` if memory allocation failed
+
+Code Example 
+
+.. code-block:: c
+
+   #include "dstructures.h"
+   #include <stdio.h>  // For printf
+   #include <stdlib.h> // For EXIT FAILURE and EXIT_SUCCESS
+
+   int main() {
+       // Initialize vector_t as if code is compiled in gcc or clang
+       vector_t* vec VECTOR_GBC = init_xsec(10);
+
+       float temp[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+       for (size_t i = 0; i < 5; i++) {
+           if (!push_back_vector(vec, temp[i])) {
+               return EXIT_FAILURE;
+           }
+       }
+       
+       vector_t* new_vec = copy_vector(vec);
+       printf("Vector1     Vector2\n\n");
+       for (size_t i = 0; i < size(vec); i++) {
+            printf("%f     %f\n", get_vector(vec, i), get_vector(new_vec, i));
+       }
+       printf("\n");
+       printf("Vector1 populated length: %ld\n", size(vec));
+       printf("Vector2 populated length: %ld\n", size(new_vec));
+       printf("Vector1 allocated length: %ld\n", alloc(vec));
+       printf("Vector2 populated length: %ld\n", size(new_vec));
+       // If not compiled in gcc or clang use free_data(vec)
+       return EXIT_SUCCESS;
+   }
+
+.. code-block:: bash 
+
+   Vector1     Vector2 
+   1.0000      1.0000 
+   2.0000      2.0000 
+   3.0000      3.0000 
+   4.0000      4.0000 
+   5.0000      5.0000 
+
+   Vector1 populated length: 5
+   Vector2 populated length: 5
+   Vector1 allocated length: 10
+   Vector2 allocated length: 10
+
+.. c:function:: const float* get_vecArray(const vector_t* vec)
+
+   Retrieves a pointer to the internal float array. The returned array is 
+   read-only to maintain data encapsulation.
+
+   :param vec: Source vector
+   :return: Const pointer to float array, or NULL on failure
+   :errno: ``EINVAL`` if invalid vector pointer or NULL array
+
+   .. warning::
+       The returned pointer is only valid for the lifetime of the vector_t 
+       structure. Do not store this pointer beyond the lifetime of the structure.
+
+   Example usage:
+
+   .. code-block:: c
+
+       vector_t* vec = init_vector(5);
+       push_back_vector(vec, 1.f);
+       push_back_vector(vec, 2.f);
+       push_back_vector(vec, 3.f);
+       push_back_vector(vec, 4.f);
+       push_back_vector(vec, 5.f);
+       
+       const float* array = get_vecArray(vec);
+       if (array) {
+           for (size_t i = 0; i < size(vec); i++) {
+               printf("Value at %zu: %f\n", i, array[i]);
+           }
+       }
+
+.. code-block:: bash 
+
+   Value at 1: 1.0000 
+   Value at 2: 2.0000 
+   Value at 3: 3.0000 
+   Value at 4: 4.0000 
+   Value at 5: 5.0000
 
 Memory Management
 =================
