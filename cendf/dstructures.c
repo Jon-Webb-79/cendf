@@ -779,12 +779,12 @@ float get_vector(vector_t* vec, size_t index) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
-        return false;
+        return FLT_MAX;
     }
     if (index >= vec->len) {
         errno = EINVAL;
         fprintf(stderr, "Index %zu out of bounds (len: %zu)\n", index, vec->len);
-        return false;
+        return FLT_MAX;
     }
     return vec->data[index]; 
 }
@@ -794,7 +794,7 @@ const size_t vector_size(vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
-        return false;
+        return 0;
     }
     return vec->len;
 }
@@ -804,7 +804,7 @@ const size_t vector_alloc(vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
-        return false;
+        return 0;
     }
     return vec->alloc;
 }
@@ -840,7 +840,7 @@ vector_t* copy_vector(vector_t* vec) {
     if (!vec || !vec->data) {
         errno = EINVAL;
         fprintf(stderr, "Null pointer to vector_t or float vector with error: %s\n", strerror(errno));
-        return false;
+        return NULL;
     }
     vector_t* new_vec = init_vector(vec->alloc);
     if (!new_vec) return NULL;

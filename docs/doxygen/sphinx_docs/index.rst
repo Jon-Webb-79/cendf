@@ -61,6 +61,7 @@ C++ code as well.
    :caption: Contents:
 
    Cross Section Data Type <XSec>
+   Vector Data Type <Vector>
    Generic Macros <Macros>
 
 Indices and tables

@@ -35,7 +35,7 @@ Data Structures
 .. c:type:: xsec_t
 
     An opaque structure that manages the storage and access of cross-section data.
-    This struct is encapsulated within the ``dstructures.c`` file and are directly
+    This struct is encapsulated within the ``dstructures.c`` file and is not directly
     accesible to a developer.
 
     .. code-block:: c
@@ -45,7 +45,7 @@ Data Structures
             float energy;  /* Corresponding energy value */
             size_t alloc;  /* allocated size of the xs and energy arrays */ 
             size_t len;    /* populated size o the xs and energy arrays */
-        } xsecData;
+        } xsec_t;
 
 .. c:type:: xsecData
 
