@@ -188,10 +188,14 @@ Code Example
        return EXIT_SUCCESS;
    }
 
+.. code-block:: bash 
+
+   [ 5.0000, 4.0000, 3.0000, 2.0000, 1.0000 ]
+
 .. c:function:: bool insert_vector(vector_t* vec, float dat, size_t index)
 
    Inserts a value at the specified position. This method of inserting data into 
-   a reactor can have a time complexity ranging from :math:`O(0)` to :math:`O(n)`
+   a reactor can have a time complexity ranging from :math:`O(1)` to :math:`O(n)`
    depending on whether data is inserted closer to the front of, or the back of
    the vector.
 
@@ -245,23 +249,117 @@ Removal Operations
 
 .. c:function:: float pop_back_vector(vector_t* vec)
 
-   Removes and returns the last element.
+   Removes and returns the last element.  This is the most time efficeint data 
+   removal operation and has a time complexity of :math:`O(1)`;
 
    :param vec: Target vector
    :return: Removed value, or FLT_MAX on failure
    :errno: ``EINVAL`` if vector is NULL or empty
+
+Code Example 
+
+.. code-block:: c
+
+   #include "dstructures.h"
+   #include <stdio.h>  // For printf
+   #include <stdlib.h> // For EXIT FAILURE and EXIT_SUCCESS
+   #include <math.h>   // for fabs
+
+   bool isclose(float a, float b, float rel_tol) {
+       float diff = fabs(a - b);
+       return diff <= fmax(rel_tol * fmax(fabs(a), fabs(b)), abs_tol);
+   }
+
+   int main() {
+       // Initialize vector_t as if code is compiled in gcc or clang
+       vector_t* vec VECTOR_GBC = init_xsec(5);
+
+       float temp[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+       for (size_t i = 0; i < 5; i++) {
+           if (!push_back_vector(vec, temp[i])) {
+               return EXIT_FAILURE;
+           }
+       }
+
+       float val = pop_back_vector(vec);
+       if (isclose(val, FLT_MAX, 0.0001, 0) && errno == EINVAL)
+           return EXIT_FAILURE;
+       prinft("Popped value is: %f\n", val);
+
+       printf("[ ");
+       for (size_t i = 0; i < size(vec) - 1; i++) {
+            printf("%f, ", get_vector(vec, i));
+       }
+       printf("%f ]\n", get_vector(vec, size(vec)));
+       // If not compiled in gcc or clang use free_data(vec)
+       return EXIT_SUCCESS;
+   }
+
+.. code-block:: bash 
+
+   Popped value is: 5.0000
+
+   [ 1.0000, 2.0000, 3.0000, 4.0000 ]
 
 .. c:function:: float pop_front_vector(vector_t* vec)
 
-   Removes and returns the first element.
+   Removes and returns the first element.  This is the least time efficient 
+   removal operation and has a time complexity of :math:`O(n)`.
 
    :param vec: Target vector
    :return: Removed value, or FLT_MAX on failure
    :errno: ``EINVAL`` if vector is NULL or empty
 
+Code Example 
+
+.. code-block:: c
+
+   #include "dstructures.h"
+   #include <stdio.h>  // For printf
+   #include <stdlib.h> // For EXIT FAILURE and EXIT_SUCCESS
+   #include <math.h>   // for fabs
+
+   bool isclose(float a, float b, float rel_tol) {
+       float diff = fabs(a - b);
+       return diff <= fmax(rel_tol * fmax(fabs(a), fabs(b)), abs_tol);
+   }
+
+   int main() {
+       // Initialize vector_t as if code is compiled in gcc or clang
+       vector_t* vec VECTOR_GBC = init_xsec(5);
+
+       float temp[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+       for (size_t i = 0; i < 5; i++) {
+           if (!push_back_vector(vec, temp[i])) {
+               return EXIT_FAILURE;
+           }
+       }
+
+       float val = pop_front_vector(vec);
+       if (isclose(val, FLT_MAX, 0.0001, 0) && errno == EINVAL)
+           return EXIT_FAILURE;
+       prinft("Popped value is: %f\n", val);
+
+       printf("[ ");
+       for (size_t i = 0; i < size(vec) - 1; i++) {
+            printf("%f, ", get_vector(vec, i));
+       }
+       printf("%f ]\n", get_vector(vec, size(vec)));
+       // If not compiled in gcc or clang use free_data(vec)
+       return EXIT_SUCCESS;
+   }
+
+.. code-block:: bash 
+
+   Popped value is: 1.0000
+
+   [ 2.0000, 3.0000, 4.0000, 5.0000 ]
+
 .. c:function:: float pop_any_vector(vector_t* vec, size_t index)
 
-   Removes and returns the element at specified index.
+   Removes and returns the element at specified index.  This method has a time 
+   complexity that ranges from :math:`O(1)` to :math:`O(n)` depending on whether 
+   the devoper is removing data from the front side or back side of the vector.
 
    :param vec: Target vector
    :param index: Position to remove from
@@ -269,6 +367,51 @@ Removal Operations
    :errno: 
        - ``EINVAL`` if vector is NULL or empty
        - ``ERANGE`` if index out of bounds
+
+Code Example 
+
+.. code-block:: c
+
+   #include "dstructures.h"
+   #include <stdio.h>  // For printf
+   #include <stdlib.h> // For EXIT FAILURE and EXIT_SUCCESS
+   #include <math.h>   // for fabs
+
+   bool isclose(float a, float b, float rel_tol) {
+       float diff = fabs(a - b);
+       return diff <= fmax(rel_tol * fmax(fabs(a), fabs(b)), abs_tol);
+   }
+
+   int main() {
+       // Initialize vector_t as if code is compiled in gcc or clang
+       vector_t* vec VECTOR_GBC = init_xsec(5);
+
+       float temp[5] = {1.f, 2.f, 3.f, 4.f, 5.f};
+       for (size_t i = 0; i < 5; i++) {
+           if (!push_back_vector(vec, temp[i])) {
+               return EXIT_FAILURE;
+           }
+       }
+
+       float val = pop_any_vector(vec, 2);
+       if (isclose(val, FLT_MAX, 0.0001, 0) && errno == EINVAL)
+           return EXIT_FAILURE;
+       prinft("Popped value is: %f\n", val);
+
+       printf("[ ");
+       for (size_t i = 0; i < size(vec) - 1; i++) {
+            printf("%f, ", get_vector(vec, i));
+       }
+       printf("%f ]\n", get_vector(vec, size(vec)));
+       // If not compiled in gcc or clang use free_data(vec)
+       return EXIT_SUCCESS;
+   }
+
+.. code-block:: bash 
+
+   Popped value is: 3.0000
+
+   [ 1.0000, 2.0000, 4.0000, 5.0000 ]
 
 Access Operations
 -----------------
