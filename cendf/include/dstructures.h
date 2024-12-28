@@ -310,7 +310,7 @@ const char* get_string(const string_t* str);
  * @return The length of the string in bytes (excluding the null terminator),
  *         or -1 on error. Sets errno to EINVAL if `str` is NULL.
  */
-size_t string_size(const string_t* str);
+const size_t string_size(const string_t* str);
 // --------------------------------------------------------------------------------
 
 /**
@@ -321,7 +321,7 @@ size_t string_size(const string_t* str);
  * @return The total allocated capacity in bytes, or -1 on error.
  *         Sets errno to EINVAL if `str` is NULL.
  */
-size_t string_alloc(const string_t* str);
+const size_t string_alloc(const string_t* str);
 // --------------------------------------------------------------------------------
 
 /**
@@ -411,7 +411,7 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
  * @param str A string_t data type
  * @return A string_t data type with the exact contents of str
  */
-string_t* copy_string(string_t *str);
+string_t* copy_string(const string_t *str);
 // --------------------------------------------------------------------------------
 
 /**

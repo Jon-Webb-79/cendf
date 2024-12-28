@@ -368,7 +368,7 @@ const char* get_string(const string_t* str) {
 }
 // --------------------------------------------------------------------------------
 
-size_t string_size(const string_t* str) {
+const size_t string_size(const string_t* str) {
     if (!str || !str->str) {
         errno = EINVAL;
         fprintf(stderr, "string_t struct or literal is NULL with error: %s\n", strerror(errno));
@@ -378,7 +378,7 @@ size_t string_size(const string_t* str) {
 }
 // --------------------------------------------------------------------------------
 
-size_t string_alloc(const string_t* str) {
+const size_t string_alloc(const string_t* str) {
     if (!str || !str->str) {
         errno = EINVAL;
         fprintf(stderr, "string_t struct or literal is NULL with error: %s\n", strerror(errno));
@@ -492,7 +492,7 @@ int compare_strings_string(const string_t* str_struct_one, string_t* str_struct_
 }
 // --------------------------------------------------------------------------------
 
-string_t* copy_string(string_t* str) {
+string_t* copy_string(const string_t* str) {
     if (!str || !str->str) {
         errno = EINVAL;
         fprintf(stderr, "Invalid input: string_t struct or literal is NULL with error: %s\n", strerror(errno));
