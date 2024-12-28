@@ -23,9 +23,9 @@ Generic Macros
    
    Supported types:
        - ``xsec_t*``: Calls :ref:`xsec_size <xsec-size-func>`
-       - ``string_t*``: Calls ``string_size``
+       - ``string_t*``: Calls :ref:`string_size <string-size-func>`
        - ``vector_t*``: Calls :ref:`vector_size <vec-size-func>`
-       - ``dict_t*``: Calls ``dict_size``
+       - ``dict_t*``: Calls :ref:`dict_size <dict-size-func>`
 
    Example usage:
 
@@ -49,9 +49,9 @@ Generic Macros
    
    Supported types:
        - ``xsec_t*``: Calls :ref:`xsec_alloc <xsec-alloc-func>`
-       - ``string_t*``: Calls ``string_alloc``
+       - ``string_t*``: Calls :ref:`string_alloc <string-alloc-func>`
        - ``vector_t*``: Calls :ref:`vector_alloc <vec-alloc-func>`
-       - ``dict_t*``: Calls ``dict_alloc``
+       - ``dict_t*``: Calls :ref:`dict_alloc <dict-alloc-func>`
 
    Example usage:
 
@@ -76,9 +76,9 @@ Generic Macros
    
    Supported types:
        - ``xsec_t*``: :ref:`free_xsec <xsec-free-func>`
-       - ``string_t*``: Calls ``free_string``
+       - ``string_t*``: Calls :ref:`free_string <string-free-func>`
        - ``vector_t*``: Calls :ref:`free_vector <vec-free-func>`
-       - ``dict_t*``: Calls ``dict_alloc``
+       - ``dict_t*``: Calls :ref:`free_dict <dict-free-func>`
        - Default: Calls standard ``free``
 
    Example usage:

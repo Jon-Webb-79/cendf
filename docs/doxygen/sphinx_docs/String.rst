@@ -98,6 +98,33 @@ by the developer. This struct can only be dynamically created with the
        String 1: Hello
        String 2: World
 
+.. _string-free-func:
+
+.. c:function:: void free_string(char* str)
+
+   Deallocates all memory associated with the string. This function 
+   can be used directly to free ``string_t`` data from memory, or the developer 
+   can also use the :ref:`free_data <free-data-macro>` macro as a generic macro that can be used 
+   to free memory for any data type in this code base.
+
+   :param vec: Pointer to vector to be freed
+   :errno: ``EINVAL`` if NULL pointer passed
+
+Code Examples
+
+.. code-block:: c
+
+   #include "dstructures.h"
+
+   int main() {
+       // Initialize string_t variable
+       string_t* str = init_string("Hello");
+       // Free string_t variable when it is no longer needed 
+       free_string(str);
+       // Can also use free_data(str) to free memory
+   }
+
+
 String Access Operations
 ------------------------
 These functions provide safe access to the string data and its properties.
@@ -139,6 +166,8 @@ These functions provide safe access to the string data and its properties.
 
        String content: Hello, World!
 
+.. _string-size-func:
+
 .. c:function:: const size_t string_size(const string_t* str)
 
    Returns the current length of the string (excluding null terminator). The generic 
@@ -172,6 +201,8 @@ These functions provide safe access to the string data and its properties.
    .. code-block:: bash
 
        String length: 5
+
+.. _string-alloc-func:
 
 .. c:function:: const size_t string_alloc(const string_t* str)
 

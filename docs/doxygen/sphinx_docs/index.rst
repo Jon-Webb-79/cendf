@@ -48,7 +48,7 @@ However, the `ENDF <https://www.oecd-nea.org/dbdata/data/manual-endf/endf102.pdf
 it difficult to access data.  This software package is developed to simplify 
 the process of accessing ENDF data, as well as atomic level data from the 
 periodic table.  This allows a user to more easily extract data for plotting 
-of direct use in engineering software as C code; however, this library is
+or direct use in engineering software as C code; however, this library is
 developed with the appropriate headers to allow for it to be compiled as 
 C++ code as well.
 
@@ -63,6 +63,7 @@ C++ code as well.
    Cross Section Data Type <XSec>
    String Data Type <String>
    Vector Data Type <Vector>
+   Dictionary Data Type <Dict>
    Generic Macros <Macros>
 
 Indices and tables
