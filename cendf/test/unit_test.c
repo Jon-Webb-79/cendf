@@ -79,6 +79,14 @@ const struct CMUnitTest test_data_structures[] = {
     cmocka_unit_test(test_free_dictionary_gbc),
     cmocka_unit_test(test_update_dictionary),
     cmocka_unit_test(test_update_dictionary_error),
+    cmocka_unit_test(test_fetch_element_symbol),
+    cmocka_unit_test(test_fetch_element_element),
+    cmocka_unit_test(test_fetch_element_category),
+    cmocka_unit_test(test_fetch_element_atomic_number),
+    cmocka_unit_test(test_fetch_element_weight),
+    cmocka_unit_test(test_fetch_element_electroneg),
+    cmocka_unit_test(test_fetch_element_melting),
+    cmocka_unit_test(test_fetch_element_boiling)
 };
 // ================================================================================ 
 // ================================================================================ 

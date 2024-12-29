@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <float.h>
+#include <jansson.h>
 
 const float LOAD_FACTOR_THRESHOLD = 0.7;
 static const size_t XSEC_THRESHOLD = 1 * 1024 * 1024;  // 1 MB
@@ -1114,6 +1115,252 @@ const size_t dict_alloc(const dict_t* dict) {
 
 const size_t dict_hash_size(const dict_t* dict) {
     return dict->hash_size;
+}
+// ================================================================================ 
+// ================================================================================
+
+struct element_t {
+    string_t* symbol;
+    string_t* element;
+    string_t* category;
+    size_t atom_num;
+    float weight;
+    float electro_neg;
+    dict_t* melting;
+    dict_t* boiling;
+    float electron_affin;
+    vector_t* ionization;
+    float radius;
+    float hardness;
+    float modulus;
+    float density;
+    float therm_cond;
+    float electric_cond;
+    float specific_heat;
+    float vaporization;
+    float fusion_heat;
+    string_t* electron_config;
+};
+// --------------------------------------------------------------------------------
+
+element_t* fetch_element(const char* element, const char* file_name) {
+    // Read and parse the JSON file
+    json_error_t error;
+    json_t* root = json_load_file(file_name, 0, &error);
+    if (!root) {
+        errno = ENOENT;
+        fprintf(stderr, "Element json file '%s' does not exist", file_name);
+        return NULL;
+    }
+    // Search for the element
+    size_t index;
+    json_t* data;
+    json_array_foreach(root, index, data) {
+        json_t* symbol = json_object_get(data, "Symbol");
+        if (json_is_string(symbol) && strcmp(json_string_value(symbol), element) == 0) {
+            // Found the element, create and populate the struct
+            element_t* elem = malloc(sizeof(element_t));
+            if (!elem) {
+                json_decref(root);
+                return NULL;
+            }
+
+            // Initialize string fields
+            elem->symbol = init_string(json_string_value(symbol));
+            elem->element = init_string(json_string_value(json_object_get(data, "Element")));
+            elem->category = init_string(json_string_value(json_object_get(data, "Category")));
+            elem->electron_config = init_string(json_string_value(json_object_get(data, "ElectronConfig")));
+
+            // Initialize numeric fields
+            elem->atom_num = json_integer_value(json_object_get(data, "AtomNum"));
+            elem->weight = (float)json_real_value(json_object_get(data, "Weight(amu)"));
+            
+            // Handle potential NULL values for optional fields
+            json_t* electronegativity = json_object_get(data, "Electronegativity");
+            elem->electro_neg = json_is_string(electronegativity) ? 0.0f : 
+                             (float)json_real_value(electronegativity);
+
+            // Handle melting points dictionary
+            json_t* melting = json_object_get(data, "MeltingPoint(K)");
+            elem->melting = init_dict();
+            if (json_is_object(melting)) {
+                const char* key;
+                json_t* value;
+                json_object_foreach(melting, key, value) {
+                    if (json_is_number(value)) {
+                        insert_dict(elem->melting, (char*)key, json_real_value(value));
+                    }
+                }
+            }
+
+            // Handle boiling points dictionary
+            json_t* boiling = json_object_get(data, "BoilingPoint(K)");
+            elem->boiling = init_dict();
+            if (json_is_object(boiling)) {
+                const char* key;
+                json_t* value;
+                json_object_foreach(boiling, key, value) {
+                    if (json_is_number(value)) {
+                        insert_dict(elem->boiling, (char*)key, json_real_value(value));
+                    }
+                }
+            }
+
+            // Handle electron affinity
+            json_t* electron_affinity = json_object_get(data, "ElectronAffinity(kJ/mol)");
+            elem->electron_affin = json_is_string(electron_affinity) ? 0.0f : 
+                                 (float)json_real_value(electron_affinity);
+
+            // Handle ionization energies vector
+            json_t* ionization = json_object_get(data, "Ionization(kJ)");
+            elem->ionization = init_vector(1);
+            if (json_is_object(ionization)) {
+                const char* key;
+                json_t* value;
+                json_object_foreach(ionization, key, value) {
+                    if (json_is_number(value)) {
+                        push_back_vector(elem->ionization, json_real_value(value));
+                    }
+                }
+            }
+
+            // Handle remaining numeric fields with NULL checks
+            json_t* radius = json_object_get(data, "Radius(pm)");
+            elem->radius = json_is_string(radius) ? 0.0f : (float)json_real_value(radius);
+
+            json_t* hardness = json_object_get(data, "Hardness(V)");
+            elem->hardness = json_is_string(hardness) ? 0.0f : (float)json_real_value(hardness);
+
+            json_t* modulus = json_object_get(data, "Modulus(GPa)");
+            elem->modulus = json_is_string(modulus) ? 0.0f : (float)json_real_value(modulus);
+
+            json_t* density = json_object_get(data, "Density(kg/m3)");
+            elem->density = json_is_string(density) ? 0.0f : (float)json_real_value(density);
+
+            json_t* therm_cond = json_object_get(data, "ThermalConductivity(W/mK)");
+            elem->therm_cond = json_is_string(therm_cond) ? 0.0f : (float)json_real_value(therm_cond);
+
+            json_t* electric_cond = json_object_get(data, "ElectricalConductivity(MS/m)");
+            elem->electric_cond = json_is_string(electric_cond) ? 0.0f : (float)json_real_value(electric_cond);
+
+            json_t* specific_heat = json_object_get(data, "SpecificHeat(J/kgK)");
+            elem->specific_heat = json_is_string(specific_heat) ? 0.0f : (float)json_real_value(specific_heat);
+
+            json_t* vaporization = json_object_get(data, "VaporizationHeat(kJ/mol)");
+            elem->vaporization = json_is_string(vaporization) ? 0.0f : (float)json_real_value(vaporization);
+
+            json_t* fusion = json_object_get(data, "FusionHeat(kJ/mol)");
+            elem->fusion_heat = json_is_string(fusion) ? 0.0f : (float)json_real_value(fusion);
+
+            json_decref(root);
+            return elem;
+        }
+    }
+
+    // Element not found
+    json_decref(root);
+    return NULL;
+}
+// -------------------------------------------------------------------------------- 
+
+const string_t* element_symbol(element_t* elem) {
+    if (!elem || !elem->symbol) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or symbol is NULL\n");
+        return NULL;
+    }
+    return elem->symbol;
+}
+// --------------------------------------------------------------------------------
+
+const string_t* element_element(element_t* elem) {
+    if (!elem || !elem->element) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or element is NULL\n");
+        return NULL;
+    }
+    return elem->element;
+}
+// --------------------------------------------------------------------------------
+
+const string_t* element_category(element_t* elem) {
+    if (!elem || !elem->category) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or category is NULL\n");
+        return NULL;
+    }
+    return elem->category;
+}
+// --------------------------------------------------------------------------------
+
+const size_t element_atomic_number(element_t* elem) {
+    if (!elem || !elem->atom_num) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or atomic number is NULL\n");
+        return LONG_MAX;
+    }
+    return elem->atom_num;
+}
+// --------------------------------------------------------------------------------
+
+const float element_weight(element_t* elem) {
+    if (!elem || !elem->weight) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or weight is NULL\n");
+        return FLT_MAX;
+    }
+    return elem->weight;
+}
+// --------------------------------------------------------------------------------
+
+const float element_electroneg(element_t* elem) {
+    if (!elem || !elem->electro_neg) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or electronegativity is NULL\n");
+        return FLT_MAX;
+    }
+    return elem->electro_neg;
+}
+// --------------------------------------------------------------------------------
+
+const dict_t* element_melting_point(element_t* elem) {
+    if (!elem || !elem->electro_neg) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or melting point is NULL\n");
+        return NULL;
+    }
+    return elem->melting;
+}
+// --------------------------------------------------------------------------------
+
+const dict_t* element_boiling_point(element_t* elem) {
+    if (!elem || !elem->electro_neg) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or boiling point is NULL\n");
+        return NULL;
+    }
+    return elem->boiling;
+}
+// --------------------------------------------------------------------------------
+
+void free_element(element_t* elem) {
+    if (!elem)
+        return;
+    if (elem->symbol)
+        free_string(elem->symbol);
+    if (elem->element)
+        free_string(elem->element);
+    if (elem->category)
+        free_string(elem->category);
+    if (elem->melting)
+        free_dict(elem->melting);
+    if (elem->boiling)
+        free_dict(elem->boiling);
+    if (elem->ionization)
+        free_vector(elem->ionization);
+    if (elem->electron_config)
+        free_string(elem->electron_config);
+    free(elem);
 }
 // ================================================================================
 // ================================================================================

@@ -851,6 +851,63 @@ const size_t dict_hash_size(const dict_t* dict);
     dict_t*: free_dict, \
     default: free) (d_struct)
 // ================================================================================
+// ================================================================================
+
+// typedef struct {
+//     string_t* symbol;
+//     string_t* element;
+//     string_t* category;
+//     size_t atom_num;
+//     float weight;
+//     float eletro_neg;
+//     dict_t* melting;
+//     dict_t* boiling;
+//     float electron_affin;
+//     vector_t* ionization;
+//     float radius;
+//     float hardness;
+//     float modulus;
+//     float density;
+//     float therm_cond;
+//     float electric_cond;
+//     float specific_heat;
+//     float vaporization;
+//     float fusion_heat;
+//     string_t* electron_config;
+// } element_t;
+
+typedef struct element_t element_t;
+// --------------------------------------------------------------------------------
+
+element_t* fetch_element(const char* element, const char* file_name); 
+// --------------------------------------------------------------------------------
+
+const string_t* element_symbol(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const string_t* element_element(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const string_t* element_category(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const size_t element_atomic_number(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_weight(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_electroneg(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const dict_t* element_melting_point(element_t* elem);
+// --------------------------------------------------------------------------------
+
+const dict_t* element_boiling_point(element_t* elem);
+// --------------------------------------------------------------------------------
+
+void free_element(element_t* elem);
+// ================================================================================
 // ================================================================================ 
 #ifdef __cplusplus
 }
