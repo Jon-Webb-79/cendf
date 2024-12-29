@@ -815,9 +815,84 @@ void test_fetch_element_boiling(void **state) {
     char* file_name = "../../../../data/periodic_table/periodic_table.json";
     element_t* elem = fetch_element("C", file_name);
     const dict_t* dict = element_boiling_point(elem);
-    printf("%ld\n", size((dict_t*)dict));
     assert_float_equal(4098.15, get_dict_value(dict, "graphite"), 1.0e-5);
-    //assert_float_equal(4713.15, get_dict_value(dict, "diamond"), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_electron_affin(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("C", file_name);
+    assert_float_equal(1.262119, element_electron_affin(elem), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_ionization(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("C", file_name);
+    float temp[6] = {11.260288, 24.383143, 47.88778, 
+                     64.49352, 392.09056, 489.99320779};
+    const vector_t* vec = element_ionization(elem);
+    for (size_t i = 0; i < size((vector_t*)vec); i++) {
+        assert_float_equal(temp[i], get_vector(vec, i), 1.0e-3);
+    }
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_radius(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("C", file_name);
+    assert_float_equal(70.0, element_radius(elem), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_hardness(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("He", file_name);
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    assert_float_equal(-1.0, element_hardness(elem), 1.0e-5);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr; 
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_modulus(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("He", file_name);
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    assert_float_equal(-1.0, element_modulus(elem), 1.0e-5);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr; 
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_density(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Mn", file_name);
+    assert_float_equal(7.3, element_density(elem), 1.0e-5);
     free_element(elem);    
 }
 // ================================================================================

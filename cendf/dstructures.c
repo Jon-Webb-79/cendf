@@ -15,6 +15,7 @@
 #include "include/dstructures.h"
 
 #include <errno.h>
+#include <linux/limits.h>
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
@@ -1263,7 +1264,7 @@ element_t* fetch_element(const char* element, const char* file_name) {
 }
 // -------------------------------------------------------------------------------- 
 
-const string_t* element_symbol(element_t* elem) {
+const string_t* element_symbol(const element_t* elem) {
     if (!elem || !elem->symbol) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or symbol is NULL\n");
@@ -1273,7 +1274,7 @@ const string_t* element_symbol(element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
-const string_t* element_element(element_t* elem) {
+const string_t* element_element(const element_t* elem) {
     if (!elem || !elem->element) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or element is NULL\n");
@@ -1283,7 +1284,7 @@ const string_t* element_element(element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
-const string_t* element_category(element_t* elem) {
+const string_t* element_category(const element_t* elem) {
     if (!elem || !elem->category) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or category is NULL\n");
@@ -1293,7 +1294,7 @@ const string_t* element_category(element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
-const size_t element_atomic_number(element_t* elem) {
+const size_t element_atomic_number(const element_t* elem) {
     if (!elem || !elem->atom_num) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or atomic number is NULL\n");
@@ -1303,27 +1304,27 @@ const size_t element_atomic_number(element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
-const float element_weight(element_t* elem) {
+const float element_weight(const element_t* elem) {
     if (!elem || !elem->weight) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or weight is NULL\n");
-        return FLT_MAX;
+        return -1.0;
     }
     return elem->weight;
 }
 // --------------------------------------------------------------------------------
 
-const float element_electroneg(element_t* elem) {
+const float element_electroneg(const element_t* elem) {
     if (!elem || !elem->electro_neg) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or electronegativity is NULL\n");
-        return FLT_MAX;
+        return -1.0;
     }
     return elem->electro_neg;
 }
 // --------------------------------------------------------------------------------
 
-const dict_t* element_melting_point(element_t* elem) {
+const dict_t* element_melting_point(const element_t* elem) {
     if (!elem || !elem->electro_neg) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or melting point is NULL\n");
@@ -1333,13 +1334,73 @@ const dict_t* element_melting_point(element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
-const dict_t* element_boiling_point(element_t* elem) {
+const dict_t* element_boiling_point(const element_t* elem) {
     if (!elem || !elem->electro_neg) {
         errno = EINVAL;
         fprintf(stderr, "element_t data structure or boiling point is NULL\n");
         return NULL;
     }
     return elem->boiling;
+}
+// --------------------------------------------------------------------------------
+
+const float element_electron_affin(const element_t* elem) {
+    if (!elem || !elem->electron_affin) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or electron_affin is NULL\n");
+        return -1.0;
+    }
+    return elem->electron_affin;
+}
+// --------------------------------------------------------------------------------
+
+const vector_t* element_ionization(const element_t* elem) {
+    if (!elem || !elem->ionization) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or ionization is NULL\n");
+        return NULL;
+    }
+    return elem->ionization;
+}
+// --------------------------------------------------------------------------------
+
+const float element_radius(const element_t* elem) {
+    if (!elem || !elem->radius) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or ionization is NULL\n");
+        return -1.0;
+    }
+    return elem->radius;
+}
+// --------------------------------------------------------------------------------
+
+const float element_hardness(const element_t* elem) {
+    if (!elem || !elem->hardness) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or hardness is NULL\n");
+        return -1.0;
+    }
+    return elem->hardness;
+}
+// --------------------------------------------------------------------------------
+
+const float element_modulus(const element_t* elem) {
+    if (!elem || !elem->modulus) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or modulus is NULL\n");
+        return -1.0;
+    }
+    return elem->modulus;
+}
+// --------------------------------------------------------------------------------
+
+const float element_density(const element_t* elem) {
+    if (!elem || !elem->density) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or density is NULL\n");
+        return -1.0;
+    }
+    return elem->density;
 }
 // --------------------------------------------------------------------------------
 

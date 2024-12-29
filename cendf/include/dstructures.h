@@ -882,28 +882,46 @@ typedef struct element_t element_t;
 element_t* fetch_element(const char* element, const char* file_name); 
 // --------------------------------------------------------------------------------
 
-const string_t* element_symbol(element_t* elem);
+const string_t* element_symbol(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const string_t* element_element(element_t* elem);
+const string_t* element_element(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const string_t* element_category(element_t* elem);
+const string_t* element_category(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const size_t element_atomic_number(element_t* elem);
+const size_t element_atomic_number(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const float element_weight(element_t* elem);
+const float element_weight(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const float element_electroneg(element_t* elem);
+const float element_electroneg(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const dict_t* element_melting_point(element_t* elem);
+const dict_t* element_melting_point(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const dict_t* element_boiling_point(element_t* elem);
+const dict_t* element_boiling_point(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_electron_affin(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const vector_t* element_ionization(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_radius(const element_t* elem);
+// -------------------------------------------------------------------------------- 
+
+const float element_hardness(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_modulus(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_density(const element_t* elem);
 // --------------------------------------------------------------------------------
 
 void free_element(element_t* elem);
