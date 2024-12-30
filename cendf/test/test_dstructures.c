@@ -751,8 +751,7 @@ void test_update_dictionary_error(void **state) {
 // ================================================================================
 
 void test_fetch_element_symbol(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("H", file_name);
+    element_t* elem = fetch_element("H");
     const char* symbol = get_string(element_symbol(elem));
     assert_string_equal(symbol, "H");
     free_element(elem);
@@ -760,8 +759,7 @@ void test_fetch_element_symbol(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_element(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("H", file_name);
+    element_t* elem = fetch_element("H");
     const char* symbol = get_string(element_element(elem));
     assert_string_equal(symbol, "Hydrogen");
     free_element(elem);
@@ -769,8 +767,7 @@ void test_fetch_element_element(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_category(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Li", file_name);
+    element_t* elem = fetch_element("Li");
     const char* category = get_string(element_category(elem));
     assert_string_equal(category, "Alkali Metal");
     free_element(elem);
@@ -778,32 +775,28 @@ void test_fetch_element_category(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_atomic_number(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Li", file_name);
+    element_t* elem = fetch_element("Li");
     assert_int_equal(3, element_atomic_number(elem));
     free_element(elem);
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_weight(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Li", file_name);
+    element_t* elem = fetch_element("Li");
     assert_float_equal(6.94, element_weight(elem), 1.0e-5);
     free_element(elem);
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_electroneg(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Li", file_name);
+    element_t* elem = fetch_element("Li");
     assert_float_equal(0.98, element_electroneg(elem), 1.0e-5);
     free_element(elem);
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_melting(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("C", file_name);
+    element_t* elem = fetch_element("C");
     const dict_t* dict = element_melting_point(elem);
     assert_float_equal(4762.15, get_dict_value(dict, "graphite"), 1.0e-5);
     assert_float_equal(4713.15, get_dict_value(dict, "diamond"), 1.0e-5);
@@ -812,8 +805,7 @@ void test_fetch_element_melting(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_boiling(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("C", file_name);
+    element_t* elem = fetch_element("C");
     const dict_t* dict = element_boiling_point(elem);
     assert_float_equal(4098.15, get_dict_value(dict, "graphite"), 1.0e-5);
     free_element(elem);    
@@ -821,16 +813,14 @@ void test_fetch_element_boiling(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_electron_affin(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("C", file_name);
+    element_t* elem = fetch_element("C");
     assert_float_equal(1.262119, element_electron_affin(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_ionization(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("C", file_name);
+    element_t* elem = fetch_element("C");
     float temp[6] = {11.260288, 24.383143, 47.88778, 
                      64.49352, 392.09056, 489.99320779};
     const vector_t* vec = element_ionization(elem);
@@ -842,16 +832,14 @@ void test_fetch_element_ionization(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_radius(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("C", file_name);
+    element_t* elem = fetch_element("C");
     assert_float_equal(70.0, element_radius(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_hardness(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("He", file_name);
+    element_t* elem = fetch_element("He");
     // Backup original stderr
     FILE *original_stderr = stderr;
 
@@ -870,8 +858,7 @@ void test_fetch_element_hardness(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_modulus(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("He", file_name);
+    element_t* elem = fetch_element("He");
     // Backup original stderr
     FILE *original_stderr = stderr;
 
@@ -890,24 +877,21 @@ void test_fetch_element_modulus(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_density(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Mn", file_name);
+    element_t* elem = fetch_element("Mn");
     assert_float_equal(7.3, element_density(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_thermal_conductivity(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Fe", file_name);
+    element_t* elem = fetch_element("Fe");
     assert_float_equal(80.4, element_thermal_cond(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_electrical_conductivity(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Fe", file_name);
+    element_t* elem = fetch_element("Fe");
     // Backup original stderr
     FILE *original_stderr = stderr;
 
@@ -926,32 +910,28 @@ void test_fetch_element_electrical_conductivity(void **state) {
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_specific_heat(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Fe", file_name);
+    element_t* elem = fetch_element("Fe");
     assert_float_equal(0.449, element_specific_heat(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_vaporization_heat(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Fe", file_name);
+    element_t* elem = fetch_element("Fe");
     assert_float_equal(340.0, element_vaporization_heat(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_fusion_heat(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Fe", file_name);
+    element_t* elem = fetch_element("Fe");
     assert_float_equal(13.8, element_fusion_heat(elem), 1.0e-5);
     free_element(elem);    
 }
 // --------------------------------------------------------------------------------
 
 void test_fetch_element_electron_config(void **state) {
-    char* file_name = "../../../../data/periodic_table/periodic_table.json";
-    element_t* elem = fetch_element("Fe", file_name);
+    element_t* elem = fetch_element("Fe");
     const string_t* str = element_electron_config(elem);
     assert_string_equal("[Ar] 3d6 4s2", get_string(str));
     free_element(elem);    

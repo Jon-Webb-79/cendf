@@ -60,6 +60,7 @@ C++ code as well.
    :maxdepth: 2
    :caption: Contents:
 
+   Periodic Table <Element>
    Cross Section Data Type <XSec>
    String Data Type <String>
    Vector Data Type <Vector>

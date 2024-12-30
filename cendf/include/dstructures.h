@@ -853,96 +853,254 @@ const size_t dict_hash_size(const dict_t* dict);
 // ================================================================================
 // ================================================================================
 
-// typedef struct {
-//     string_t* symbol;
-//     string_t* element;
-//     string_t* category;
-//     size_t atom_num;
-//     float weight;
-//     float eletro_neg;
-//     dict_t* melting;
-//     dict_t* boiling;
-//     float electron_affin;
-//     vector_t* ionization;
-//     float radius;
-//     float hardness;
-//     float modulus;
-//     float density;
-//     float therm_cond;
-//     float electric_cond;
-//     float specific_heat;
-//     float vaporization;
-//     float fusion_heat;
-//     string_t* electron_config;
-// } element_t;
-
+/**
+ * @struct element_t
+ * @brief A structure representing a chemical element with its properties.
+ *
+ * This structure contains comprehensive data about a chemical element, including
+ * its physical properties, electronic configuration, and thermal characteristics.
+ */
 typedef struct element_t element_t;
 // --------------------------------------------------------------------------------
 
-element_t* fetch_element(const char* element, const char* file_name); 
+/**
+ * @brief Fetches element data from a JSON file.
+ *
+ * Reads element data from a specified JSON file and creates an element_t structure
+ * for the requested element. Returns NULL if the element is not found or if there
+ * are any errors reading the file.
+ *
+ * @param element The chemical symbol of the element to fetch (e.g., "H" for Hydrogen)
+ * @param file_name Path to the JSON file containing element data
+ * @return element_t* Pointer to the new element structure, or NULL if not found/error
+ */
+element_t* fetch_element_data(const char* element, const char* file_name); 
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief calls fetch_element_data
+ */
+element_t* fetch_element(const char* element);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Gets the chemical symbol of the element.
+ *
+ * @param elem Pointer to the element structure
+ * @return const string_t* Pointer to the element's symbol, or NULL if invalid
+ */
 const string_t* element_symbol(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const string_t* element_element(const element_t* elem);
+/**
+ * @brief Gets the full name of the element.
+ *
+ * @param elem Pointer to the element structure
+ * @return const string_t* Pointer to the element's name, or NULL if invalid
+ */const string_t* element_element(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the category of the element (e.g., "Noble Gas", "Alkali Metal").
+ *
+ * @param elem Pointer to the element structure
+ * @return const string_t* Pointer to the element's category, or NULL if invalid
+ */
 const string_t* element_category(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the atomic number of the element.
+ *
+ * @param elem Pointer to the element structure
+ * @return const size_t The atomic number, or LONG_MAX if invalid
+ */
 const size_t element_atomic_number(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the atomic weight of the element in atomic mass units (amu).
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The atomic weight, or -1.0 if invalid
+ */
 const float element_weight(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the electronegativity of the element.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The electronegativity value, or -1.0 if invalid/not available
+ */
 const float element_electroneg(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the melting points of the element in Kelvin.
+ *
+ * Some elements have different melting points for different forms (e.g., graphite vs. diamond),
+ * which are stored in the dictionary.
+ *
+ * @param elem Pointer to the element structure
+ * @return const dict_t* Dictionary of melting points, or NULL if invalid
+ */
 const dict_t* element_melting_point(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the boiling points of the element in Kelvin.
+ *
+ * Some elements have different boiling points for different forms,
+ * which are stored in the dictionary.
+ *
+ * @param elem Pointer to the element structure
+ * @return const dict_t* Dictionary of boiling points, or NULL if invalid
+ */
 const dict_t* element_boiling_point(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the electron affinity of the element in kJ/mol.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The electron affinity, or -1.0 if invalid/not available
+ */
 const float element_electron_affin(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the ionization energies of the element in kJ.
+ *
+ * Returns a vector containing successive ionization energies.
+ *
+ * @param elem Pointer to the element structure
+ * @return const vector_t* Vector of ionization energies, or NULL if invalid
+ */
 const vector_t* element_ionization(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the atomic radius of the element in picometers.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The atomic radius, or -1.0 if invalid/not available
+ */
 const float element_radius(const element_t* elem);
 // -------------------------------------------------------------------------------- 
 
+/**
+ * @brief Gets the hardness of the element in Vickers scale.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The hardness value, or -1.0 if invalid/not available
+ */
 const float element_hardness(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the elastic modulus of the element in GPa.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The elastic modulus, or -1.0 if invalid/not available
+ */
 const float element_modulus(const element_t* elem);
 // --------------------------------------------------------------------------------
 
-const float element_density(const element_t* elem);
+/**
+ * @brief Gets the density of the element in kg/m³.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The density value, or -1.0 if invalid/not available
+ */const float element_density(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the thermal conductivity of the element in W/(m·K).
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The thermal conductivity, or -1.0 if invalid/not available
+ */
 const float element_thermal_cond(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the electrical conductivity of the element in MS/m.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The electrical conductivity, or -1.0 if invalid/not available
+ */
 const float element_electrical_cond(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the specific heat capacity of the element in J/(kg·K).
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The specific heat capacity, or -1.0 if invalid/not available
+ */
 const float element_specific_heat(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the heat of vaporization of the element in kJ/mol.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The heat of vaporization, or -1.0 if invalid/not available
+ */
 const float element_vaporization_heat(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the heat of fusion of the element in kJ/mol.
+ *
+ * @param elem Pointer to the element structure
+ * @return const float The heat of fusion, or -1.0 if invalid/not available
+ */
 const float element_fusion_heat(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Gets the electron configuration of the element.
+ *
+ * @param elem Pointer to the element structure
+ * @return const string_t* Pointer to the electron configuration, or NULL if invalid
+ */
 const string_t* element_electron_config(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+/**
+ * @brief Frees memory allocated for an element structure.
+ *
+ * Deallocates all memory associated with the element structure, including
+ * all strings, dictionaries, and vectors it contains.
+ *
+ * @param elem Pointer to the element structure to free
+ */
 void free_element(element_t* elem);
+// --------------------------------------------------------------------------------
+
+/**
+ * @brief Safely frees a element_t data type and sets the pointer to NULL.
+ *
+ * A wrapper around `free_element` that ensures the element pointer is also set to NULL
+ * after being freed. Useful for preventing dangling pointers.
+ *
+ * @param dict Pointer to the element_t pointer to free.
+ */
+void _free_element(element_t** dict);
+// --------------------------------------------------------------------------------
+
+#if defined(__GNUC__) || defined (__clang__)
+    /**
+     * @macro ELEMENT_GBC
+     * @brief A macro for enabling automatic cleanup of element_t objects.
+     *
+     * This macro uses the cleanup attribute to automatically call `_free_vector`
+     * when the scope ends, ensuring proper memory management.
+     */
+    #define ELEMENT_GBC __attribute__((cleanup(_element_dict)))
+#endif
 // ================================================================================
 // ================================================================================ 
 #ifdef __cplusplus

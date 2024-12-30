@@ -1144,7 +1144,7 @@ struct element_t {
 };
 // --------------------------------------------------------------------------------
 
-element_t* fetch_element(const char* element, const char* file_name) {
+element_t* fetch_element_data(const char* element, const char* file_name) {
     // Read and parse the JSON file
     json_error_t error;
     json_t* root = json_load_file(file_name, 0, &error);
@@ -1228,12 +1228,14 @@ element_t* fetch_element(const char* element, const char* file_name) {
             // Handle remaining numeric fields with NULL checks
             json_t* radius = json_object_get(data, "Radius(pm)");
             elem->radius = json_is_string(radius) ? 0.0f : (float)json_real_value(radius);
-
+            
             json_t* hardness = json_object_get(data, "Hardness(V)");
-            elem->hardness = json_is_string(hardness) ? 0.0f : (float)json_real_value(hardness);
+            elem->hardness = json_is_string(hardness) || !json_is_number(hardness) ? -1.0f : 
+                (float)json_real_value(hardness);
 
             json_t* modulus = json_object_get(data, "Modulus(GPa)");
-            elem->modulus = json_is_string(modulus) ? 0.0f : (float)json_real_value(modulus);
+            elem->modulus = json_is_string(modulus) || !json_is_number(modulus) ? -1.0f : 
+                (float)json_real_value(modulus);
 
             json_t* density = json_object_get(data, "Density(kg/m3)");
             elem->density = json_is_string(density) ? 0.0f : (float)json_real_value(density);
@@ -1242,7 +1244,8 @@ element_t* fetch_element(const char* element, const char* file_name) {
             elem->therm_cond = json_is_string(therm_cond) ? 0.0f : (float)json_real_value(therm_cond);
 
             json_t* electric_cond = json_object_get(data, "ElectricalConductivity(MS/m)");
-            elem->electric_cond = json_is_string(electric_cond) ? 0.0f : (float)json_real_value(electric_cond);
+            elem->electric_cond = json_is_string(electric_cond) || !json_is_number(electric_cond) ? -1.0f : 
+                (float)json_real_value(electric_cond);
 
             json_t* specific_heat = json_object_get(data, "SpecificHeat(J/kgK)");
             elem->specific_heat = json_is_string(specific_heat) ? 0.0f : (float)json_real_value(specific_heat);
@@ -1261,6 +1264,12 @@ element_t* fetch_element(const char* element, const char* file_name) {
     // Element not found
     json_decref(root);
     return NULL;
+}
+// --------------------------------------------------------------------------------
+
+element_t* fetch_element(const char* element) {
+    const char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    return fetch_element_data(element, file_name);
 }
 // -------------------------------------------------------------------------------- 
 
@@ -1374,26 +1383,6 @@ const float element_radius(const element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
-const float element_hardness(const element_t* elem) {
-    if (!elem || !elem->hardness) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or hardness is NULL\n");
-        return -1.0;
-    }
-    return elem->hardness;
-}
-// --------------------------------------------------------------------------------
-
-const float element_modulus(const element_t* elem) {
-    if (!elem || !elem->modulus) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or modulus is NULL\n");
-        return -1.0;
-    }
-    return elem->modulus;
-}
-// --------------------------------------------------------------------------------
-
 const float element_density(const element_t* elem) {
     if (!elem || !elem->density) {
         errno = EINVAL;
@@ -1401,56 +1390,6 @@ const float element_density(const element_t* elem) {
         return -1.0;
     }
     return elem->density;
-}
-// --------------------------------------------------------------------------------
-
-const float element_thermal_cond(const element_t* elem) {
-    if (!elem || !elem->therm_cond) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or thermal conductivity is NULL\n");
-        return -1.0;
-    }
-    return elem->therm_cond;
-}
-// --------------------------------------------------------------------------------
-
-const float element_electrical_cond(const element_t* elem) {
-    if (!elem || !elem->electric_cond) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or electric conductivity is NULL\n");
-        return -1.0;
-    }
-    return elem->electric_cond;
-}
-// --------------------------------------------------------------------------------
-
-const float element_specific_heat(const element_t* elem) {
-    if (!elem || !elem->specific_heat) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or specific heat is NULL\n");
-        return -1.0;
-    }
-    return elem->specific_heat;
-}
-// --------------------------------------------------------------------------------
-
-const float element_vaporization_heat(const element_t* elem) {
-    if (!elem || !elem->specific_heat) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or vaporization heat is NULL\n");
-        return -1.0;
-    }
-    return elem->vaporization;
-}
-// --------------------------------------------------------------------------------
-
-const float element_fusion_heat(const element_t* elem) {
-    if (!elem || !elem->fusion_heat) {
-        errno = EINVAL;
-        fprintf(stderr, "element_t data structure or heat of fusion is NULL\n");
-        return -1.0;
-    }
-    return elem->fusion_heat;
 }
 // --------------------------------------------------------------------------------
 
@@ -1463,6 +1402,111 @@ const string_t* element_electron_config(const element_t* elem) {
     return elem->electron_config;
 }
 // --------------------------------------------------------------------------------
+
+const float element_hardness(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->hardness == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No hardness data available for this element\n");
+        return -1.0f;
+    }
+    return elem->hardness;
+}
+// -------------------------------------------------------------------------------- 
+
+const float element_modulus(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->modulus == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No modulus data available for this element\n");
+        return -1.0f;
+    }
+    return elem->modulus;
+}
+// --------------------------------------------------------------------------------
+
+const float element_thermal_cond(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->therm_cond == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No thermal conductivity data available for this element\n");
+        return -1.0f;
+    }
+    return elem->therm_cond;
+}
+// --------------------------------------------------------------------------------
+
+const float element_electrical_cond(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->electric_cond == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No electrical conductivity data available for this element\n");
+        return -1.0f;
+    }
+    return elem->electric_cond;
+}
+// --------------------------------------------------------------------------------
+
+const float element_specific_heat(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->specific_heat == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No specific heat data available for this element\n");
+        return -1.0f;
+    }
+    return elem->specific_heat;
+}
+// --------------------------------------------------------------------------------
+
+const float element_vaporization_heat(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->vaporization == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No heat of vaporization data available for this element\n");
+        return -1.0f;
+    }
+    return elem->vaporization;
+}
+// --------------------------------------------------------------------------------
+
+const float element_fusion_heat(const element_t* elem) {
+    if (!elem) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure is NULL\n");
+        return -1.0f;
+    }
+    if (elem->fusion_heat == -1.0f) {
+        errno = ENODATA;
+        fprintf(stderr, "No heat of fusion data available for this element\n");
+        return -1.0f;
+    }
+    return elem->fusion_heat;
+}
+// -------------------------------------------------------------------------------- 
 
 void free_element(element_t* elem) {
     if (!elem)
@@ -1482,6 +1526,13 @@ void free_element(element_t* elem) {
     if (elem->electron_config)
         free_string(elem->electron_config);
     free(elem);
+}
+// --------------------------------------------------------------------------------
+
+void _free_element(element_t** elem) {
+    if (elem && *elem) {
+        free_element(*elem);
+    }
 }
 // ================================================================================
 // ================================================================================
