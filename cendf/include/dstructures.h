@@ -924,6 +924,24 @@ const float element_modulus(const element_t* elem);
 const float element_density(const element_t* elem);
 // --------------------------------------------------------------------------------
 
+const float element_thermal_cond(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_electrical_cond(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_specific_heat(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_vaporization_heat(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const float element_fusion_heat(const element_t* elem);
+// --------------------------------------------------------------------------------
+
+const string_t* element_electron_config(const element_t* elem);
+// --------------------------------------------------------------------------------
+
 void free_element(element_t* elem);
 // ================================================================================
 // ================================================================================ 

@@ -1404,6 +1404,66 @@ const float element_density(const element_t* elem) {
 }
 // --------------------------------------------------------------------------------
 
+const float element_thermal_cond(const element_t* elem) {
+    if (!elem || !elem->therm_cond) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or thermal conductivity is NULL\n");
+        return -1.0;
+    }
+    return elem->therm_cond;
+}
+// --------------------------------------------------------------------------------
+
+const float element_electrical_cond(const element_t* elem) {
+    if (!elem || !elem->electric_cond) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or electric conductivity is NULL\n");
+        return -1.0;
+    }
+    return elem->electric_cond;
+}
+// --------------------------------------------------------------------------------
+
+const float element_specific_heat(const element_t* elem) {
+    if (!elem || !elem->specific_heat) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or specific heat is NULL\n");
+        return -1.0;
+    }
+    return elem->specific_heat;
+}
+// --------------------------------------------------------------------------------
+
+const float element_vaporization_heat(const element_t* elem) {
+    if (!elem || !elem->specific_heat) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or vaporization heat is NULL\n");
+        return -1.0;
+    }
+    return elem->vaporization;
+}
+// --------------------------------------------------------------------------------
+
+const float element_fusion_heat(const element_t* elem) {
+    if (!elem || !elem->fusion_heat) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or heat of fusion is NULL\n");
+        return -1.0;
+    }
+    return elem->fusion_heat;
+}
+// --------------------------------------------------------------------------------
+
+const string_t* element_electron_config(const element_t* elem) {
+    if (!elem || !elem->electron_config) {
+        errno = EINVAL;
+        fprintf(stderr, "element_t data structure or electron config is NULL\n");
+        return NULL;
+    }
+    return elem->electron_config;
+}
+// --------------------------------------------------------------------------------
+
 void free_element(element_t* elem) {
     if (!elem)
         return;

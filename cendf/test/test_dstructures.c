@@ -895,6 +895,67 @@ void test_fetch_element_density(void **state) {
     assert_float_equal(7.3, element_density(elem), 1.0e-5);
     free_element(elem);    
 }
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_thermal_conductivity(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Fe", file_name);
+    assert_float_equal(80.4, element_thermal_cond(elem), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_electrical_conductivity(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Fe", file_name);
+    // Backup original stderr
+    FILE *original_stderr = stderr;
+
+    // Redirect stderr to /dev/null to suppress output
+    stderr = fopen("/dev/null", "w");
+    if (!stderr) {
+        fprintf(original_stderr, "Failed to redirect stderr\n");
+        return;
+    }
+    assert_float_equal(-1.0, element_electrical_cond(elem), 1.0e-5);
+    // Close the redirected stderr and restore the original stderr
+    fclose(stderr);
+    stderr = original_stderr; 
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_specific_heat(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Fe", file_name);
+    assert_float_equal(0.449, element_specific_heat(elem), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_vaporization_heat(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Fe", file_name);
+    assert_float_equal(340.0, element_vaporization_heat(elem), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_fusion_heat(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Fe", file_name);
+    assert_float_equal(13.8, element_fusion_heat(elem), 1.0e-5);
+    free_element(elem);    
+}
+// --------------------------------------------------------------------------------
+
+void test_fetch_element_electron_config(void **state) {
+    char* file_name = "../../../../data/periodic_table/periodic_table.json";
+    element_t* elem = fetch_element("Fe", file_name);
+    const string_t* str = element_electron_config(elem);
+    assert_string_equal("[Ar] 3d6 4s2", get_string(str));
+    free_element(elem);    
+}
 // ================================================================================
 // ================================================================================ 
 #endif

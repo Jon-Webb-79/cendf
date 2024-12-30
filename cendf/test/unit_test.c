@@ -92,7 +92,13 @@ const struct CMUnitTest test_data_structures[] = {
     cmocka_unit_test(test_fetch_element_radius),
     cmocka_unit_test(test_fetch_element_hardness),
     cmocka_unit_test(test_fetch_element_modulus),
-    cmocka_unit_test(test_fetch_element_density)
+    cmocka_unit_test(test_fetch_element_density),
+    cmocka_unit_test(test_fetch_element_thermal_conductivity),
+    cmocka_unit_test(test_fetch_element_electrical_conductivity),
+    cmocka_unit_test(test_fetch_element_specific_heat),
+    cmocka_unit_test(test_fetch_element_vaporization_heat),
+    cmocka_unit_test(test_fetch_element_fusion_heat),
+    cmocka_unit_test(test_fetch_element_electron_config)
 };
 // ================================================================================ 
 // ================================================================================ 
